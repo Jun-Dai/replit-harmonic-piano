@@ -6,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Save, FolderOpen } from "lucide-react";
-import { Note } from "@shared/schema";
+import { Note, TuningConfig } from "@shared/schema";
 
 interface ConfigPanelProps {
   baseFrequency: number;
@@ -23,7 +23,7 @@ interface ConfigPanelProps {
   handleSaveConfig: () => void;
   configName: string;
   setConfigName: (name: string) => void;
-  tuningConfigs: any[] | undefined;
+  tuningConfigs: TuningConfig[] | undefined;
   loadTuningConfig: (id: number) => void;
   isLoading: boolean;
 }

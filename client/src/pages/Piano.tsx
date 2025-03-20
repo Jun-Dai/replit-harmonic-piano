@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PianoKeyboard from "@/components/PianoKeyboard";
 import ConfigPanel from "@/components/ConfigPanel";
 import InfoPanel from "@/components/InfoPanel";
-import { Note } from "@shared/schema";
+import { Note, TuningConfig } from "@shared/schema";
 import { createAudioContext, getStandardNoteRange } from "@/lib/piano";
 import { calculateFrequency, initializeTunings, parseRatioString } from "@/lib/tuning";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -41,7 +41,7 @@ const Piano = () => {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<CurrentlyPlaying | null>(null);
 
   // Load saved configurations
-  const { data: tuningConfigs, isLoading, isError } = useQuery({
+  const { data: tuningConfigs, isLoading, isError } = useQuery<TuningConfig[]>({
     queryKey: ['/api/tuning-configs'],
   });
 

@@ -53,7 +53,16 @@ export class MemStorage implements IStorage {
 
   async createTuningConfig(config: InsertTuningConfig): Promise<TuningConfig> {
     const id = this.tuningIdCounter++;
-    const tuningConfig: TuningConfig = { ...config, id };
+    
+    // Ensure required fields have default values if not provided
+    const processedConfig = {
+      ...config,
+      baseFrequency: config.baseFrequency || 440,
+      decayLength: config.decayLength || 3.0,
+      createdBy: config.createdBy || null
+    };
+    
+    const tuningConfig: TuningConfig = { ...processedConfig, id };
     this.tuningConfigs.set(id, tuningConfig);
     return tuningConfig;
   }
@@ -62,7 +71,24 @@ export class MemStorage implements IStorage {
     const existingConfig = this.tuningConfigs.get(id);
     if (!existingConfig) return undefined;
 
-    const updatedConfig = { ...existingConfig, ...config };
+    // Process the update data to ensure type safety
+    const processedUpdate: Partial<TuningConfig> = { ...config };
+    
+    // Ensure baseFrequency is a number if it's being updated
+    if (config.baseFrequency !== undefined) {
+      processedUpdate.baseFrequency = config.baseFrequency;
+    }
+    
+    // Ensure decayLength is a number if it's being updated
+    if (config.decayLength !== undefined) {
+      processedUpdate.decayLength = config.decayLength;
+    }
+    
+    const updatedConfig: TuningConfig = { 
+      ...existingConfig, 
+      ...processedUpdate 
+    };
+    
     this.tuningConfigs.set(id, updatedConfig);
     return updatedConfig;
   }
