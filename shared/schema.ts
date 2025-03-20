@@ -5,10 +5,12 @@ import { z } from "zod";
 // Define the note tuning format
 export const noteSchema = z.object({
   name: z.string(),
+  ratio: z.string().optional(), // Added for a single text field input like "6/5"
   ratioNumerator: z.number().int().positive(),
   ratioDenominator: z.number().int().positive(),
   cents: z.number(),
   frequency: z.number().optional(),
+  baseName: z.string().optional(), // The base note name (e.g., C, D, E) without octave
 });
 
 export type Note = z.infer<typeof noteSchema>;

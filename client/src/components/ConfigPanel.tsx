@@ -49,27 +49,51 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 }) => {
   const [showLoadDialog, setShowLoadDialog] = useState(false);
 
-  // Helper to get display notes (limit to a subset for UI clarity)
-  const getDisplayNotes = () => {
-    const displayNotes = [
-      'A2', 'A#2', 'B2', 'C3', 
-      'C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5',
-      'A5', 'B5', 'C6'
-    ];
+  // Helper to get unique base notes for configuration
+  const getBaseNotes = () => {
+    // Get all unique base notes (C, C#, D, etc.)
+    const baseNotes = new Set<string>();
     
-    return Object.entries(noteConfigurations)
-      .filter(([note]) => displayNotes.includes(note))
-      .sort((a, b) => {
-        // Sort by note name (octave first, then note)
-        const octaveA = parseInt(a[0].slice(-1));
-        const octaveB = parseInt(b[0].slice(-1));
-        if (octaveA !== octaveB) return octaveA - octaveB;
-        
-        const noteA = a[0].slice(0, -1);
-        const noteB = b[0].slice(0, -1);
-        const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-        return noteOrder.indexOf(noteA) - noteOrder.indexOf(noteB);
+    // First collect all base notes from configurations
+    Object.values(noteConfigurations).forEach(note => {
+      if (note.baseName) {
+        baseNotes.add(note.baseName);
+      }
+    });
+    
+    // If there are no base names yet, extract them from the full note names
+    if (baseNotes.size === 0) {
+      Object.keys(noteConfigurations).forEach(noteName => {
+        const match = noteName.match(/([A-G]#?)(\d)/);
+        if (match) {
+          baseNotes.add(match[1]);
+        }
       });
+    }
+    
+    // Convert to array and sort by note order
+    const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    return Array.from(baseNotes).sort((a, b) => 
+      noteOrder.indexOf(a) - noteOrder.indexOf(b)
+    );
+  };
+  
+  // Helper to get a representative note for a base note
+  const getRepresentativeNote = (baseName: string): [string, Note] | null => {
+    // Try to find the note in the 4th octave first (where A4 is)
+    const octave4Note = `${baseName}4`;
+    if (noteConfigurations[octave4Note]) {
+      return [octave4Note, noteConfigurations[octave4Note]];
+    }
+    
+    // Otherwise find any note with this base name
+    for (const [noteName, note] of Object.entries(noteConfigurations)) {
+      if (note.baseName === baseName || noteName.startsWith(baseName)) {
+        return [noteName, note];
+      }
+    }
+    
+    return null;
   };
 
   return (
@@ -275,76 +299,82 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {getDisplayNotes().map(([noteName, note]) => (
-                <TableRow key={noteName} className="hover:bg-neutral-50">
-                  <TableCell>{noteName}</TableCell>
-                  <TableCell>
-                    {noteName === 'A4' ? (
-                      <div className="flex items-center">
-                        <Input
-                          type="number"
-                          value={note.ratioNumerator}
-                          className="w-14 text-sm font-mono"
-                          disabled
-                        />
-                        <span className="px-1">/</span>
-                        <Input
-                          type="number"
-                          value={note.ratioDenominator}
-                          className="w-14 text-sm font-mono"
-                          disabled
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <Input
-                          type="number"
-                          value={note.ratioNumerator}
-                          min={1}
-                          max={99}
-                          step={1}
-                          onChange={(e) => updateNoteConfig(noteName, { 
-                            ratioNumerator: parseInt(e.target.value) 
-                          })}
-                          className="w-14 text-sm font-mono rounded-r-none"
-                        />
-                        <span className="px-1">/</span>
-                        <Input
-                          type="number"
-                          value={note.ratioDenominator}
-                          min={1}
-                          max={99}
-                          step={1}
-                          onChange={(e) => updateNoteConfig(noteName, { 
-                            ratioDenominator: parseInt(e.target.value) 
-                          })}
-                          className="w-14 text-sm font-mono rounded-l-none"
-                        />
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      type="number"
-                      value={note.cents}
-                      min={-1200}
-                      max={1200}
-                      step={1}
-                      onChange={(e) => updateNoteConfig(noteName, { 
-                        cents: parseFloat(e.target.value) 
-                      })}
-                      className="w-20 text-sm font-mono"
-                      disabled={noteName === 'A4'}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <span className={`font-mono text-sm ${noteName === 'A4' ? 'font-medium text-primary' : ''}`}>
-                      {note.frequency?.toFixed(2) || ''}
-                    </span>
-                    {noteName === 'A4' && <span className="text-xs text-neutral-400 ml-1">(reference)</span>}
-                  </TableCell>
-                </TableRow>
-              ))}
+              {getBaseNotes().map((baseName) => {
+                const noteInfo = getRepresentativeNote(baseName);
+                if (!noteInfo) return null;
+                
+                const [noteName, note] = noteInfo;
+                const isReference = noteName === 'A4';
+                
+                return (
+                  <TableRow key={baseName} className={`hover:bg-neutral-50 ${isReference ? 'bg-blue-50' : ''}`}>
+                    <TableCell className="font-medium">{baseName}</TableCell>
+                    <TableCell>
+                      {isReference ? (
+                        <div className="flex items-center">
+                          <Input
+                            value="1/1"
+                            className="w-20 text-sm font-mono"
+                            disabled
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <Input
+                            type="text"
+                            value={note.ratio || `${note.ratioNumerator}/${note.ratioDenominator}`}
+                            placeholder="e.g. 3/2"
+                            onChange={(e) => {
+                              // Find all notes with this base name
+                              const baseNotes = Object.keys(noteConfigurations)
+                                .filter(name => name.startsWith(baseName) || 
+                                   (noteConfigurations[name].baseName === baseName));
+                              
+                              // Update each note with the new ratio
+                              baseNotes.forEach(name => {
+                                updateNoteConfig(name, { 
+                                  ratio: e.target.value
+                                });
+                              });
+                            }}
+                            className="w-20 text-sm font-mono"
+                          />
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        value={note.cents}
+                        min={-1200}
+                        max={1200}
+                        step={1}
+                        onChange={(e) => {
+                          // Find all notes with this base name
+                          const baseNotes = Object.keys(noteConfigurations)
+                            .filter(name => name.startsWith(baseName) || 
+                               (noteConfigurations[name].baseName === baseName));
+                          
+                          // Update each note with the new cents value
+                          baseNotes.forEach(name => {
+                            updateNoteConfig(name, { 
+                              cents: parseFloat(e.target.value) 
+                            });
+                          });
+                        }}
+                        className="w-20 text-sm font-mono"
+                        disabled={isReference}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <span className={`font-mono text-sm ${isReference ? 'font-medium text-primary' : ''}`}>
+                        {note.frequency?.toFixed(2) || ''}
+                      </span>
+                      {isReference && <span className="text-xs text-neutral-400 ml-1">(reference)</span>}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

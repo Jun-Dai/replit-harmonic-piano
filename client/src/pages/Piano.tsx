@@ -4,7 +4,7 @@ import ConfigPanel from "@/components/ConfigPanel";
 import InfoPanel from "@/components/InfoPanel";
 import { Note } from "@shared/schema";
 import { createAudioContext, getStandardNoteRange } from "@/lib/piano";
-import { calculateFrequency, initializeTunings } from "@/lib/tuning";
+import { calculateFrequency, initializeTunings, parseRatioString } from "@/lib/tuning";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -129,7 +129,8 @@ const Piano = () => {
       frequency,
       tuning: noteName === 'A4' ? 'Reference Note' : 
         `${tuningMethod === 'ratio' ? 
-          `${noteConfigurations[noteName].ratioNumerator}/${noteConfigurations[noteName].ratioDenominator}` : 
+          (noteConfigurations[noteName].ratio || 
+           `${noteConfigurations[noteName].ratioNumerator}/${noteConfigurations[noteName].ratioDenominator}`) : 
           `${noteConfigurations[noteName].cents} cents`}`
     });
     
@@ -172,6 +173,13 @@ const Piano = () => {
         ...noteConfigurations[noteName],
         ...partialNote
       };
+      
+      // If ratio was provided as a string, parse it and update numerator/denominator
+      if (partialNote.ratio) {
+        const [num, denom] = parseRatioString(partialNote.ratio);
+        updatedNote.ratioNumerator = num;
+        updatedNote.ratioDenominator = denom;
+      }
       
       // Calculate updated frequency
       updatedNote.frequency = calculateFrequency(

@@ -11,20 +11,24 @@ interface PianoKeyboardProps {
 
 // Keyboard mapping for computer keyboard
 const keyboardMap: Record<string, string> = {
-  'KeyA': 'A2', 'KeyW': 'A#2', 'KeyS': 'B2', 
-  'KeyD': 'C3', 'KeyR': 'C#3', 'KeyF': 'D3', 
-  'KeyT': 'D#3', 'KeyG': 'E3', 'KeyH': 'F3', 
-  'KeyU': 'F#3', 'KeyJ': 'G3', 'KeyI': 'G#3', 
-  'KeyK': 'A3', 'KeyO': 'A#3', 'KeyL': 'B3',
-  'KeyZ': 'C4', 'KeyQ': 'C#4', 'KeyX': 'D4', 
-  'KeyE': 'D#4', 'KeyC': 'E4', 'KeyV': 'F4', 
-  'KeyT': 'F#4', 'KeyB': 'G4', 'KeyY': 'G#4', 
-  'KeyN': 'A4', 'KeyU': 'A#4', 'KeyM': 'B4',
-  'Comma': 'C5', 'KeyI': 'C#5', 'Period': 'D5', 
-  'KeyO': 'D#5', 'Slash': 'E5', 'F14': 'F5', 
-  'F15': 'F#5', 'F16': 'G5', 'F17': 'G#5', 
-  'F18': 'A5', 'F19': 'A#5', 'F20': 'B5',
-  'F21': 'C6'
+  // Bottom row - C3 to B3
+  'KeyZ': 'C3', 'KeyS': 'C#3', 'KeyX': 'D3', 
+  'KeyD': 'D#3', 'KeyC': 'E3', 'KeyV': 'F3', 
+  'KeyG': 'F#3', 'KeyB': 'G3', 'KeyH': 'G#3', 
+  'KeyN': 'A3', 'KeyJ': 'A#3', 'KeyM': 'B3',
+  
+  // Middle row - C4 to B4 (including A4/440Hz)
+  'KeyQ': 'C4', 'Digit2': 'C#4', 'KeyW': 'D4', 
+  'Digit3': 'D#4', 'KeyE': 'E4', 'KeyR': 'F4', 
+  'Digit5': 'F#4', 'KeyT': 'G4', 'Digit6': 'G#4', 
+  'KeyY': 'A4', 'Digit7': 'A#4', 'KeyU': 'B4',
+  
+  // Top row - C5 to C6
+  'KeyI': 'C5', 'Digit9': 'C#5', 'KeyO': 'D5', 
+  'Digit0': 'D#5', 'KeyP': 'E5', 'BracketLeft': 'F5', 
+  'Equal': 'F#5', 'BracketRight': 'G5',
+  'Slash': 'A5', 'Quote': 'A#5', 'Enter': 'B5',
+  'Period': 'C6'
 };
 
 const PianoKeyboard: React.FC<PianoKeyboardProps> = ({ 
@@ -104,14 +108,19 @@ const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
   // Calculate positions for black keys
   const blackKeyPositions: Record<string, number> = {};
   let whiteKeyCount = 0;
-  pianoKeys.forEach((key, i) => {
+  for (let i = 0; i < pianoKeys.length; i++) {
+    const key = pianoKeys[i];
+    
     if (!key.isBlack) {
       whiteKeyCount++;
-    } else {
-      // Position black keys between white keys
-      blackKeyPositions[key.note] = (whiteKeyCount - 0.5) * keyStyle.whiteKeyWidth - (keyStyle.blackKeyWidth / 2);
+      
+      // Check if the next key is black
+      if (i + 1 < pianoKeys.length && pianoKeys[i + 1].isBlack) {
+        // Position the black key after the current white key
+        blackKeyPositions[pianoKeys[i + 1].note] = whiteKeyCount * keyStyle.whiteKeyWidth - (keyStyle.blackKeyWidth / 2);
+      }
     }
-  });
+  }
 
   return (
     <div className="mb-8 overflow-x-auto">
@@ -183,26 +192,71 @@ const PianoKeyboard: React.FC<PianoKeyboardProps> = ({
         ))}
       </div>
 
-      <div className="mt-4 text-sm text-neutral-400 flex flex-wrap items-center gap-4">
-        <div className="bg-neutral-50 px-3 py-1 rounded-full shadow-sm border border-neutral-200">
+      <div className="mt-4 text-sm text-neutral-400">
+        <div className="bg-neutral-50 px-3 py-1 rounded-md shadow-sm border border-neutral-200 mb-2 inline-block">
           <span className="font-semibold text-primary">Tip:</span> Use your computer keyboard to play notes
         </div>
-        <div className="flex space-x-2">
-          <span className="bg-neutral-200 px-2 py-1 rounded text-xs">A</span>
-          <span className="bg-neutral-200 px-2 py-1 rounded text-xs">S</span>
-          <span className="bg-neutral-200 px-2 py-1 rounded text-xs">D</span>
-          <span className="bg-neutral-200 px-2 py-1 rounded text-xs">F</span>
-          <span>...</span>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+          <div>
+            <div className="font-medium text-neutral-600 mb-1">Bottom row (C3-B3):</div>
+            <div className="flex flex-wrap gap-1">
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">Z</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">S</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">X</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">D</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">C</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">V</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">G</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">B</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">H</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">N</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">J</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">M</span>
+            </div>
+          </div>
+          
+          <div>
+            <div className="font-medium text-neutral-600 mb-1">Middle row (C4-B4):</div>
+            <div className="flex flex-wrap gap-1">
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">Q</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">2</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">W</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">3</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">E</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">R</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">5</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">T</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">6</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">Y</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">7</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">U</span>
+            </div>
+          </div>
+          
+          <div>
+            <div className="font-medium text-neutral-600 mb-1">Top row (C5-C6):</div>
+            <div className="flex flex-wrap gap-1">
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">I</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">9</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">O</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">0</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">P</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">[</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">=</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">]</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">/</span>
+              <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">'</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">Enter</span>
+              <span className="bg-neutral-200 px-2 py-1 rounded text-xs">.</span>
+            </div>
+          </div>
         </div>
-        <span>for white keys</span>
-        <div className="flex space-x-2">
-          <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">W</span>
-          <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">E</span>
-          <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">T</span>
-          <span className="bg-neutral-500 text-white px-2 py-1 rounded text-xs">Y</span>
-          <span>...</span>
+        
+        <div className="text-xs text-neutral-500 mt-2">
+          <span className="inline-block w-3 h-3 bg-neutral-200 rounded-sm mr-1"></span> White keys
+          <span className="inline-block w-3 h-3 bg-neutral-500 rounded-sm ml-3 mr-1"></span> Black keys
         </div>
-        <span>for black keys</span>
       </div>
     </div>
   );

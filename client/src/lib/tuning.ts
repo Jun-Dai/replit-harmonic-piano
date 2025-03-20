@@ -2,6 +2,25 @@ import { getNoteSemitones } from "./piano";
 import { Note } from "@shared/schema";
 
 /**
+ * Parse a ratio string into numerator and denominator
+ */
+export function parseRatioString(ratioStr: string): [number, number] {
+  if (!ratioStr || !ratioStr.includes('/')) {
+    return [1, 1]; // Default to 1/1 if invalid
+  }
+  
+  const [numStr, denomStr] = ratioStr.split('/');
+  const num = parseInt(numStr.trim());
+  const denom = parseInt(denomStr.trim());
+  
+  if (isNaN(num) || isNaN(denom) || denom === 0) {
+    return [1, 1]; // Default to 1/1 if invalid
+  }
+  
+  return [num, denom];
+}
+
+/**
  * Calculate frequency for a note based on tuning parameters
  */
 export function calculateFrequency(
@@ -34,6 +53,24 @@ export function calculateFrequency(
 }
 
 /**
+ * Extract the base note name (without octave)
+ */
+export function getBaseNoteName(noteName: string): string {
+  const match = noteName.match(/([A-G]#?)(\d)/);
+  if (!match) return '';
+  return match[1]; // Just the note name part (e.g., "C#" from "C#4")
+}
+
+/**
+ * Get octave number from note name
+ */
+export function getNoteOctave(noteName: string): number {
+  const match = noteName.match(/([A-G]#?)(\d)/);
+  if (!match) return 4; // Default to octave 4
+  return parseInt(match[2]); 
+}
+
+/**
  * Initialize tunings for all notes based on a tuning system
  */
 export function initializeTunings(
@@ -46,6 +83,109 @@ export function initializeTunings(
   
   const notes: Record<string, Note> = {};
   
+  // Create ratio objects for each note (same tuning across all octaves)
+  const baseNoteRatios: Record<string, { 
+    ratioNumerator: number, 
+    ratioDenominator: number, 
+    ratio: string, 
+    cents: number 
+  }> = {};
+  
+  // Define ratios based on the selected tuning system
+  if (tuningSystem === 'just') {
+    // Just Intonation tuning system (based on simple ratios relative to A)
+    const justRatios: Record<string, [number, number]> = {
+      'C': [3, 5],     // Major sixth below A
+      'C#': [8, 13],   // Approximation
+      'D': [2, 3],     // Perfect fifth below A
+      'D#': [5, 7],    // Approximation
+      'E': [4, 5],     // Major third below A
+      'F': [3, 4],     // Perfect fourth below A
+      'F#': [45, 56],  // Approximation
+      'G': [8, 9],     // Major second below A
+      'G#': [15, 16],  // Approximation
+      'A': [1, 1],     // Reference
+      'A#': [9, 8],    // Major second above A
+      'B': [5, 4]      // Major third above A
+    };
+    
+    // Create ratio objects for each base note
+    for (const note of noteNames) {
+      const [num, denom] = justRatios[note];
+      baseNoteRatios[note] = {
+        ratioNumerator: num,
+        ratioDenominator: denom,
+        ratio: `${num}/${denom}`,
+        cents: 0 // Initially no cents adjustment
+      };
+    }
+  } else if (tuningSystem === 'pythagorean') {
+    // Pythagorean tuning (based on perfect fifths relative to A)
+    const pythagoreanRatios: Record<string, [number, number]> = {
+      'C': [27, 40],    // ~Major sixth below A
+      'C#': [729, 1024],// Pythagorean approximation
+      'D': [3, 4],      // Perfect fourth below A
+      'D#': [81, 101],  // Pythagorean approximation
+      'E': [81, 100],   // ~Major third below A
+      'F': [4, 5],      // ~Major third below A
+      'F#': [729, 800], // Pythagorean approximation
+      'G': [3, 2],      // Perfect fifth above A
+      'G#': [243, 160], // Pythagorean approximation
+      'A': [1, 1],      // Reference
+      'A#': [256, 243], // Pythagorean limma
+      'B': [9, 8]       // Major whole tone above A
+    };
+    
+    // Create ratio objects for each base note
+    for (const note of noteNames) {
+      const [num, denom] = pythagoreanRatios[note];
+      baseNoteRatios[note] = {
+        ratioNumerator: num,
+        ratioDenominator: denom,
+        ratio: `${num}/${denom}`,
+        cents: 0
+      };
+    }
+  } else if (tuningSystem === 'quarter') {
+    // Quarter-comma meantone tuning
+    // Implemented as cents deviations from equal temperament
+    const meantoneOffsets: Record<string, number> = {
+      'C': -21.5,      // Relative to A
+      'C#': -13.7,
+      'D': -13.7,
+      'D#': -10.3,
+      'E': -6.8,
+      'F': -20.5,      // Relative to A
+      'F#': -13.7,
+      'G': -10.3,      // Relative to A
+      'G#': -6.8,
+      'A': 0,          // Reference
+      'A#': -13.7,
+      'B': -3.4
+    };
+    
+    // Create ratio objects for each base note
+    for (const note of noteNames) {
+      baseNoteRatios[note] = {
+        ratioNumerator: 1,
+        ratioDenominator: 1,
+        ratio: "1/1",
+        cents: meantoneOffsets[note] // Use cents-based adjustment
+      };
+    }
+  } else {
+    // Equal temperament (the default)
+    for (const note of noteNames) {
+      baseNoteRatios[note] = {
+        ratioNumerator: 1, 
+        ratioDenominator: 1,
+        ratio: "1/1",
+        cents: 0
+      };
+    }
+  }
+  
+  // Now generate all notes in the required range using the base note tunings
   // Generate notes for octaves 2-6 (covering A2 to C6)
   for (let octave = 2; octave <= 6; octave++) {
     for (const noteName of noteNames) {
@@ -56,15 +196,12 @@ export function initializeTunings(
         continue;
       }
       
-      // Set default tuning values
-      let ratioNumerator = 1;
-      let ratioDenominator = 1;
-      let cents = 0;
-      
       // Special case for A4 (reference note)
       if (fullNote === 'A4') {
         notes[fullNote] = {
           name: fullNote,
+          baseName: noteName,
+          ratio: "1/1",
           ratioNumerator: 1,
           ratioDenominator: 1,
           cents: 0,
@@ -73,86 +210,26 @@ export function initializeTunings(
         continue;
       }
       
-      // Calculate tuning based on selected system
-      if (tuningSystem === 'just') {
-        // Just Intonation tuning system (based on simple ratios)
-        const justRatios: Record<string, [number, number]> = {
-          'C': [4, 5],    // Major third below E
-          'C#': [32, 45], // Approximation
-          'D': [9, 10],   // Major second above C
-          'D#': [6, 7],   // Approximation 
-          'E': [5, 6],    // Minor third above C
-          'F': [3, 4],    // Perfect fourth below A
-          'F#': [5, 7],   // Approximation
-          'G': [2, 3],    // Perfect fifth below D
-          'G#': [8, 11],  // Approximation
-          'A': [1, 1],    // Reference
-          'A#': [10, 9],  // Minor second above A
-          'B': [9, 8]     // Major second above A
-        };
-        
-        const [num, denom] = justRatios[noteName];
-        ratioNumerator = num;
-        ratioDenominator = denom;
-      } else if (tuningSystem === 'pythagorean') {
-        // Pythagorean tuning (based on perfect fifths)
-        const pythagoreanRatios: Record<string, [number, number]> = {
-          'C': [3, 4],     // Fourth below F
-          'C#': [27, 32],  // Ditone above A
-          'D': [9, 8],     // Tone above C
-          'D#': [81, 64],  // Ditone above B
-          'E': [81, 64],   // Ditone above C
-          'F': [4, 3],     // Fourth above C
-          'F#': [729, 512],// Ditone above D
-          'G': [3, 2],     // Fifth above C
-          'G#': [27, 16],  // Ditone above E
-          'A': [1, 1],     // Reference
-          'A#': [9, 8],    // Tone above A
-          'B': [81, 64]    // Ditone above G
-        };
-        
-        const [num, denom] = pythagoreanRatios[noteName];
-        ratioNumerator = num;
-        ratioDenominator = denom;
-      } else if (tuningSystem === 'quarter') {
-        // Quarter-comma meantone tuning
-        // Implemented as cents deviations from equal temperament
-        const meantoneOffsets: Record<string, number> = {
-          'C': -6.8,
-          'C#': -13.7,
-          'D': -3.4,
-          'D#': -10.3,
-          'E': 0,
-          'F': -6.8,
-          'F#': -13.7,
-          'G': -3.4,
-          'G#': -10.3,
-          'A': 0,
-          'A#': -13.7,
-          'B': -3.4
-        };
-        
-        cents = meantoneOffsets[noteName];
-      } else {
-        // Default to equal temperament (which is represented by cents = 0)
-        cents = 0;
-      }
+      // Get the base tuning for this note
+      const baseRatio = baseNoteRatios[noteName];
       
       // Calculate the frequency based on the tuning parameters
       const frequency = calculateFrequency(
         fullNote, 
         baseFrequency, 
-        ratioNumerator, 
-        ratioDenominator, 
-        cents
+        baseRatio.ratioNumerator, 
+        baseRatio.ratioDenominator, 
+        baseRatio.cents
       );
       
       // Store the note configuration
       notes[fullNote] = {
         name: fullNote,
-        ratioNumerator,
-        ratioDenominator,
-        cents,
+        baseName: noteName,
+        ratio: baseRatio.ratio,
+        ratioNumerator: baseRatio.ratioNumerator,
+        ratioDenominator: baseRatio.ratioDenominator,
+        cents: baseRatio.cents,
         frequency
       };
     }
