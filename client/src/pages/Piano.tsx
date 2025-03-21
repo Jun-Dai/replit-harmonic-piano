@@ -127,7 +127,8 @@ const Piano = () => {
     setCurrentlyPlaying({
       note: noteName,
       frequency,
-      tuning: noteName === 'A4' ? 'Reference Note' : 
+      tuning: noteName === 'A4' ? 'Reference Pitch (440Hz)' : 
+        noteName.startsWith('C') ? `Reference Note (${tuningMethod === 'ratio' ? '1/1' : '0 cents'})` :
         `${tuningMethod === 'ratio' ? 
           (noteConfigurations[noteName].ratio || 
            `${noteConfigurations[noteName].ratioNumerator}/${noteConfigurations[noteName].ratioDenominator}`) : 
@@ -298,8 +299,8 @@ const Piano = () => {
     
     // Convert values for each base note
     baseNotes.forEach(baseName => {
-      // Skip A (reference note) or empty baseName
-      if (!baseName || baseName === 'A') return;
+      // Skip C (reference note) or empty baseName
+      if (!baseName || baseName === 'C') return;
       
       // Find the first note with this base name
       const noteKey = Object.keys(updatedNotes).find(key => updatedNotes[key].baseName === baseName);

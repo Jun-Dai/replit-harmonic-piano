@@ -22,8 +22,8 @@ export function parseRatioString(ratioStr: string): [number, number] {
 
 /**
  * Calculate frequency for a note based on tuning parameters
- * This function calculates frequencies using A4=440Hz as a reference point
- * while allowing C-based (C=0 cents) tuning systems
+ * This function calculates frequencies in a C-based tuning system while
+ * maintaining A4=440Hz as a reference frequency
  */
 export function calculateFrequency(
   noteName: string,
@@ -32,29 +32,44 @@ export function calculateFrequency(
   ratioDenominator: number,
   cents: number
 ): number {
-  // For the reference note (A4), just return the base frequency
+  // Extract note name and octave
+  const baseName = getBaseNoteName(noteName);
+  const octave = getNoteOctave(noteName);
+  
+  // For our reference note A4, just return the base frequency directly
   if (noteName === 'A4') {
     return baseFrequency;
   }
   
-  // Get the semitone distance from A4 (reference note)
-  const semitonesFromA4 = getNoteSemitones(noteName);
+  // Calculate C4 frequency based on A4=440Hz
+  // A4 is 9 semitones above C4 in equal temperament
+  const c4Frequency = baseFrequency * Math.pow(2, -9/12); // ~261.63 Hz
   
-  // Calculate the equal temperament frequency for this note
-  // This serves as our starting point before applying tuning adjustments
-  const equalTempFrequency = baseFrequency * Math.pow(2, semitonesFromA4 / 12);
+  // Calculate octave multiplier relative to C4
+  const octaveDiff = octave - 4;
+  const octaveMultiplier = Math.pow(2, octaveDiff);
   
-  // Choose approach based on tuning parameters
+  // Determine the frequency
   let frequency;
   
   if (ratioNumerator !== 1 || ratioDenominator !== 1) {
     // Using just intonation or ratio-based tuning
+    // Calculate the frequency of C in the target octave
+    const cInTargetOctave = c4Frequency * octaveMultiplier;
+    
+    // Apply the ratio relative to C
     const justRatio = ratioNumerator / ratioDenominator;
-    frequency = equalTempFrequency * justRatio;
+    frequency = cInTargetOctave * justRatio;
   } else {
     // Using cents-based tuning (like equal temperament)
-    // We apply the cents deviation (from equal temperament) to the note
-    frequency = equalTempFrequency * Math.pow(2, cents / 1200);
+    // Convert cents to ratio (relative to C)
+    const centsRatio = Math.pow(2, cents / 1200);
+    
+    // Calculate the frequency of C in the target octave
+    const cInTargetOctave = c4Frequency * octaveMultiplier;
+    
+    // Apply the cents ratio
+    frequency = cInTargetOctave * centsRatio;
   }
   
   return parseFloat(frequency.toFixed(2));

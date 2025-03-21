@@ -318,13 +318,16 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                 if (!noteInfo) return null;
                 
                 const [noteName, note] = noteInfo;
-                const isReference = noteName === 'A4';
+                // Use C as the reference note for tuning (1/1 ratio or 0 cents)
+                // A4 is still the reference for frequency (typically 440Hz)
+                const isReferenceForTuning = baseName === 'C';
+                const isReferenceForFrequency = noteName === 'A4';
                 
                 return (
-                  <TableRow key={baseName} className={`hover:bg-neutral-50 ${isReference ? 'bg-blue-50' : ''}`}>
+                  <TableRow key={baseName} className={`hover:bg-neutral-50 ${isReferenceForTuning ? 'bg-blue-50' : ''}`}>
                     <TableCell className="font-medium">{baseName}</TableCell>
                     <TableCell>
-                      {isReference ? (
+                      {isReferenceForTuning ? (
                         <div className="flex items-center">
                           <Input
                             value="1/1"
@@ -361,7 +364,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      {isReference ? (
+                      {isReferenceForTuning ? (
                         <Input
                           type="number"
                           value={0}
@@ -397,10 +400,10 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      <span className={`font-mono text-sm ${isReference ? 'font-medium text-primary' : ''}`}>
+                      <span className={`font-mono text-sm ${isReferenceForFrequency ? 'font-medium text-primary' : ''}`}>
                         {note.frequency?.toFixed(2) || ''}
                       </span>
-                      {isReference && <span className="text-xs text-neutral-400 ml-1">(reference)</span>}
+                      {isReferenceForFrequency && <span className="text-xs text-neutral-400 ml-1">(reference)</span>}
                     </TableCell>
                   </TableRow>
                 );
