@@ -4,7 +4,8 @@
 
 // Create audio context
 export function createAudioContext(): AudioContext {
-  return new (window.AudioContext || window.webkitAudioContext)();
+  // For TypeScript compatibility, use a type assertion
+  return new ((window as any).AudioContext || (window as any).webkitAudioContext)();
 }
 
 // Create a standard piano key range

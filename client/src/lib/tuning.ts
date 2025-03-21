@@ -39,31 +39,25 @@ export function calculateFrequency(
   const baseName = getBaseNoteName(noteName);
   const octave = getNoteOctave(noteName);
   
-  // Find semitones from A4
-  const semitones = getNoteSemitones(noteName);
+  // A4 is our reference note at octave 4
+  const referenceOctave = 4;
   
-  // Calculate the basic equal-tempered frequency (standard 12-TET)
-  const basicFrequency = baseFrequency * Math.pow(2, semitones / 12);
+  // Calculate octave difference from reference
+  const octaveDiff = octave - referenceOctave;
   
-  // Choose which approach to use based on the tuning parameters
+  // Choose approach based on tuning parameters
   let frequency;
   
   if (ratioNumerator !== 1 || ratioDenominator !== 1) {
     // Use just intonation ratio
     const justRatio = ratioNumerator / ratioDenominator;
     
-    // Calculate the frequency using the ratio relative to A in the appropriate octave
-    const octaveDiff = octave - 4; // A4 is the reference
+    // Apply the ratio to the base frequency and adjust for octave
     frequency = baseFrequency * justRatio * Math.pow(2, octaveDiff);
   } else {
-    // Use cents-based tuning
-    frequency = basicFrequency;
-  }
-  
-  // Apply cents deviation if provided (100 cents = 1 semitone)
-  if (cents !== 0) {
-    const centsAdjustment = Math.pow(2, cents / 1200);
-    frequency *= centsAdjustment;
+    // For equal temperament or cents-based tuning
+    // Calculate frequency using the formula: f = base * 2^(cents/1200) * 2^octaveDiff
+    frequency = baseFrequency * Math.pow(2, cents/1200) * Math.pow(2, octaveDiff);
   }
   
   return frequency;
@@ -303,37 +297,30 @@ export function initializeTunings(
     }
   } else {
     // Equal temperament (the default)
+    // In 12-tone equal temperament, each semitone is 100 cents
+    // Starting with A at 0 cents and proceeding through the octave
+    
+    const equalTemperamentCents: Record<string, number> = {
+      'A': 0,     // Reference note
+      'A#': 100,  // 1 semitone above A
+      'B': 200,   // 2 semitones above A
+      'C': 300,   // 3 semitones above A
+      'C#': 400,  // 4 semitones above A
+      'D': 500,   // 5 semitones above A
+      'D#': 600,  // 6 semitones above A
+      'E': 700,   // 7 semitones above A
+      'F': 800,   // 8 semitones above A
+      'F#': 900,  // 9 semitones above A
+      'G': 1000,  // 10 semitones above A
+      'G#': 1100  // 11 semitones above A
+    };
+    
     for (const note of noteNames) {
-      // Calculate cents from A in equal temperament
-      let cents = 0;
-      
-      if (note !== 'A') {
-        // Find the index of the note in the noteNames array
-        const noteIndex = noteNames.indexOf(note);
-        const aIndex = noteNames.indexOf('A');
-        
-        // Calculate semitones from A (can be negative)
-        let semitones = noteIndex - aIndex;
-        
-        // Handle wrapping around the octave for notes before A
-        if (semitones < 0) {
-          semitones += 12;
-        }
-        
-        // For notes after A in the current octave
-        if (semitones > 6) {
-          semitones -= 12;
-        }
-        
-        // Convert semitones to cents (100 cents per semitone)
-        cents = semitones * 100;
-      }
-      
       baseNoteRatios[note] = {
         ratioNumerator: 1, 
         ratioDenominator: 1,
         ratio: "1/1",
-        cents: cents  // Use cents for equal temperament
+        cents: equalTemperamentCents[note]  // Use cents for equal temperament
       };
     }
   }
