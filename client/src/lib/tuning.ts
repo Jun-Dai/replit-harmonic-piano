@@ -333,16 +333,22 @@ export function initializeTunings(
         continue;
       }
       
-      // Special case for A4 (reference note)
+      // Special case for A4 (reference pitch note, typically 440Hz)
       if (fullNote === 'A4') {
+        // For A4, we use the user-defined base frequency
+        // But still maintain the C-based tuning system
+        // So A4 still has a cents value of 900 (9 semitones above C4)
+        // but its frequency is fixed at the reference frequency (typically 440Hz)
+        const centsFromC = 900; // A is 9 semitones above C
+        
         notes[fullNote] = {
           name: fullNote,
           baseName: noteName,
-          ratio: "1/1",
+          ratio: "1/1", // Simple ratio for the reference pitch
           ratioNumerator: 1,
           ratioDenominator: 1,
-          cents: 0,
-          frequency: baseFrequency
+          cents: centsFromC,
+          frequency: baseFrequency // This is the reference frequency (e.g., 440Hz)
         };
         continue;
       }
