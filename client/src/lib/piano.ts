@@ -62,7 +62,8 @@ export function getMidiNoteNumber(noteName: string): number {
   const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   const octaveNum = parseInt(octave);
   
-  // MIDI note 69 is A4 (440 Hz in standard tuning)
+  // MIDI note numbers: C-1 is 0, C0 is 12, C1 is 24, etc.
+  // A4 (440 Hz) is 69
   return notes.indexOf(note) + (octaveNum + 1) * 12;
 }
 

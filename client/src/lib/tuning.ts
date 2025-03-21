@@ -35,10 +35,14 @@ export function calculateFrequency(
     return baseFrequency;
   }
   
+  // Extract note information
+  const baseName = getBaseNoteName(noteName);
+  const octave = getNoteOctave(noteName);
+  
   // Find semitones from A4
   const semitones = getNoteSemitones(noteName);
   
-  // Calculate the basic equal-tempered frequency
+  // Calculate the basic equal-tempered frequency (standard 12-TET)
   const basicFrequency = baseFrequency * Math.pow(2, semitones / 12);
   
   // Choose which approach to use based on the tuning parameters
@@ -48,14 +52,9 @@ export function calculateFrequency(
     // Use just intonation ratio
     const justRatio = ratioNumerator / ratioDenominator;
     
-    // Calculate the frequency directly from the ratio to A4
-    frequency = baseFrequency * justRatio * Math.pow(2, Math.floor(semitones / 12));
-    
-    // Adjust for the difference in octaves
-    const octaveDiff = Math.floor(semitones / 12);
-    if (octaveDiff !== 0) {
-      frequency = frequency * Math.pow(2, octaveDiff);
-    }
+    // Calculate the frequency using the ratio relative to A in the appropriate octave
+    const octaveDiff = octave - 4; // A4 is the reference
+    frequency = baseFrequency * justRatio * Math.pow(2, octaveDiff);
   } else {
     // Use cents-based tuning
     frequency = basicFrequency;
@@ -307,6 +306,7 @@ export function initializeTunings(
     for (const note of noteNames) {
       // Calculate cents from A in equal temperament
       let cents = 0;
+      
       if (note !== 'A') {
         // Find the index of the note in the noteNames array
         const noteIndex = noteNames.indexOf(note);
@@ -315,10 +315,13 @@ export function initializeTunings(
         // Calculate semitones from A (can be negative)
         let semitones = noteIndex - aIndex;
         
-        // Adjust for wrapping around the octave
-        if (semitones < -6) {
+        // Handle wrapping around the octave for notes before A
+        if (semitones < 0) {
           semitones += 12;
-        } else if (semitones > 6) {
+        }
+        
+        // For notes after A in the current octave
+        if (semitones > 6) {
           semitones -= 12;
         }
         

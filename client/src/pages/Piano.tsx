@@ -28,7 +28,7 @@ const Piano = () => {
   // Configuration state
   const [baseFrequency, setBaseFrequency] = useState<number>(440);
   const [decayLength, setDecayLength] = useState<number>(3.0);
-  const [tuningMethod, setTuningMethod] = useState<"ratio" | "cents">("ratio");
+  const [tuningMethod, setTuningMethod] = useState<"ratio" | "cents">("cents");
   const [currentTuningSystem, setCurrentTuningSystem] = useState<string>("Equal Temperament");
   const [configId, setConfigId] = useState<number | null>(null);
   const [configName, setConfigName] = useState<string>("My Custom Tuning");
