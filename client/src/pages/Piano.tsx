@@ -4,7 +4,7 @@ import ConfigPanel from "@/components/ConfigPanel";
 import InfoPanel from "@/components/InfoPanel";
 import { Note, TuningConfig } from "@shared/schema";
 import { createAudioContext, getStandardNoteRange } from "@/lib/piano";
-import { calculateFrequency, initializeTunings, parseRatioString } from "@/lib/tuning";
+import { calculateFrequency, initializeTunings, parseRatioString, ratioToCents, centsToRatio } from "@/lib/tuning";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -281,6 +281,76 @@ const Piano = () => {
     }
   });
 
+  // Handle toggling between ratio and cents methods
+  const handleTuningMethodChange = (method: "ratio" | "cents") => {
+    if (method === tuningMethod) return; // No change
+    
+    // Create a copy of the current note configurations
+    const updatedNotes = { ...noteConfigurations };
+    
+    // Get all unique base notes
+    const baseNotes = new Set<string>();
+    Object.values(updatedNotes).forEach(note => {
+      if (note.baseName) {
+        baseNotes.add(note.baseName);
+      }
+    });
+    
+    // Convert values for each base note
+    baseNotes.forEach(baseName => {
+      // Skip A (reference note) or empty baseName
+      if (!baseName || baseName === 'A') return;
+      
+      // Find the first note with this base name
+      const noteKey = Object.keys(updatedNotes).find(key => updatedNotes[key].baseName === baseName);
+      if (!noteKey) return;
+      
+      const note = updatedNotes[noteKey];
+      
+      if (method === "cents" && note.ratioNumerator > 0 && note.ratioDenominator > 0) {
+        // Converting from ratio to cents
+        const newCents = ratioToCents(note.ratioNumerator, note.ratioDenominator);
+        
+        // Update all notes with this base name
+        Object.keys(updatedNotes)
+          .filter(key => updatedNotes[key].baseName === baseName)
+          .forEach(key => {
+            updatedNotes[key] = {
+              ...updatedNotes[key],
+              cents: parseFloat(newCents.toFixed(1))
+            };
+          });
+      } 
+      else if (method === "ratio" && note.cents !== 0) {
+        // Converting from cents to ratio
+        const [num, denom] = centsToRatio(note.cents);
+        
+        // Update all notes with this base name
+        Object.keys(updatedNotes)
+          .filter(key => updatedNotes[key].baseName === baseName)
+          .forEach(key => {
+            updatedNotes[key] = {
+              ...updatedNotes[key],
+              ratioNumerator: num,
+              ratioDenominator: denom,
+              ratio: `${num}/${denom}`
+            };
+          });
+      }
+    });
+    
+    // Update the state
+    setNoteConfigurations(updatedNotes);
+    setTuningMethod(method);
+    
+    // Notify user
+    toast({
+      title: `Tuning Method: ${method === "ratio" ? "Just Intonation Ratio" : "Cents"}`,
+      description: `Converted tuning values to ${method === "ratio" ? "ratio" : "cents"} format.`,
+      duration: 3000
+    });
+  };
+  
   // Save current configuration
   const handleSaveConfig = () => {
     saveTuningMutation.mutate({
@@ -339,7 +409,7 @@ const Piano = () => {
           decayLength={decayLength}
           setDecayLength={setDecayLength}
           tuningMethod={tuningMethod}
-          setTuningMethod={setTuningMethod}
+          setTuningMethod={handleTuningMethodChange}
           currentTuningSystem={currentTuningSystem}
           selectTuningSystem={selectTuningSystem}
           noteConfigurations={noteConfigurations}
