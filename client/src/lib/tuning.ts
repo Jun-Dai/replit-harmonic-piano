@@ -22,10 +22,12 @@ export function parseRatioString(ratioStr: string): [number, number] {
 
 /**
  * Calculate frequency for a note based on tuning parameters
+ * This function calculates frequencies using A4=440Hz as a reference point
+ * while allowing C-based (C=0 cents) tuning systems
  */
 export function calculateFrequency(
   noteName: string,
-  baseFrequency: number,
+  baseFrequency: number, // A4 frequency, typically 440Hz
   ratioNumerator: number,
   ratioDenominator: number,
   cents: number
@@ -35,32 +37,27 @@ export function calculateFrequency(
     return baseFrequency;
   }
   
-  // Extract note information
-  const baseName = getBaseNoteName(noteName);
-  const octave = getNoteOctave(noteName);
+  // Get the semitone distance from A4 (reference note)
+  const semitonesFromA4 = getNoteSemitones(noteName);
   
-  // A4 is our reference note at octave 4
-  const referenceOctave = 4;
-  
-  // Calculate octave difference from reference
-  const octaveDiff = octave - referenceOctave;
+  // Calculate the equal temperament frequency for this note
+  // This serves as our starting point before applying tuning adjustments
+  const equalTempFrequency = baseFrequency * Math.pow(2, semitonesFromA4 / 12);
   
   // Choose approach based on tuning parameters
   let frequency;
   
   if (ratioNumerator !== 1 || ratioDenominator !== 1) {
-    // Use just intonation ratio
+    // Using just intonation or ratio-based tuning
     const justRatio = ratioNumerator / ratioDenominator;
-    
-    // Apply the ratio to the base frequency and adjust for octave
-    frequency = baseFrequency * justRatio * Math.pow(2, octaveDiff);
+    frequency = equalTempFrequency * justRatio;
   } else {
-    // For equal temperament or cents-based tuning
-    // Calculate frequency using the formula: f = base * 2^(cents/1200) * 2^octaveDiff
-    frequency = baseFrequency * Math.pow(2, cents/1200) * Math.pow(2, octaveDiff);
+    // Using cents-based tuning (like equal temperament)
+    // We apply the cents deviation (from equal temperament) to the note
+    frequency = equalTempFrequency * Math.pow(2, cents / 1200);
   }
   
-  return frequency;
+  return parseFloat(frequency.toFixed(2));
 }
 
 /**
@@ -142,9 +139,9 @@ export function initializeTunings(
   baseFrequency: number = 440,
   tuningSystem: string = 'equal'
 ): Record<string, Note> {
-  // Put A first in the list since it's our reference note
+  // Define notes in standard order with C first (standard musical convention)
   const noteNames = [
-    'A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'
+    'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'
   ];
   
   const notes: Record<string, Note> = {};
@@ -159,20 +156,20 @@ export function initializeTunings(
   
   // Define ratios based on the selected tuning system
   if (tuningSystem === 'just') {
-    // Just Intonation tuning system (based on simple ratios relative to A)
+    // Just Intonation tuning system (based on simple ratios relative to C)
     const justRatios: Record<string, [number, number]> = {
-      'A': [1, 1],     // Reference
-      'A#': [9, 8],    // Major second above A
-      'B': [5, 4],     // Major third above A
-      'C': [3, 5],     // Major sixth below A (adjusted for octave)
-      'C#': [8, 13],   // Approximation
-      'D': [2, 3],     // Perfect fifth below A (adjusted for octave)
-      'D#': [5, 7],    // Approximation
-      'E': [4, 5],     // Major third below A (adjusted for octave)
-      'F': [3, 4],     // Perfect fourth below A (adjusted for octave)
-      'F#': [45, 56],  // Approximation
-      'G': [8, 9],     // Major second below A (adjusted for octave)
-      'G#': [15, 16]   // Approximation
+      'C': [1, 1],      // Reference note
+      'C#': [16, 15],   // Minor second
+      'D': [9, 8],      // Major second
+      'D#': [6, 5],     // Minor third
+      'E': [5, 4],      // Major third
+      'F': [4, 3],      // Perfect fourth
+      'F#': [45, 32],   // Augmented fourth
+      'G': [3, 2],      // Perfect fifth
+      'G#': [8, 5],     // Minor sixth
+      'A': [5, 3],      // Major sixth
+      'A#': [9, 5],     // Minor seventh (or 16/9)
+      'B': [15, 8]      // Major seventh
     };
     
     // Create ratio objects for each base note
@@ -186,20 +183,20 @@ export function initializeTunings(
       };
     }
   } else if (tuningSystem === 'pythagorean') {
-    // Pythagorean tuning (based on perfect fifths relative to A)
+    // Pythagorean tuning (based on perfect fifths relative to C)
     const pythagoreanRatios: Record<string, [number, number]> = {
-      'A': [1, 1],      // Reference
-      'A#': [256, 243], // Pythagorean limma
-      'B': [9, 8],      // Major whole tone above A
-      'C': [27, 40],    // ~Major sixth below A (adjusted for octave)
-      'C#': [729, 1024],// Pythagorean approximation
-      'D': [3, 4],      // Perfect fourth below A (adjusted for octave)
-      'D#': [81, 101],  // Pythagorean approximation
-      'E': [81, 100],   // ~Major third below A (adjusted for octave)
-      'F': [4, 5],      // ~Major third below A (adjusted for octave)
-      'F#': [729, 800], // Pythagorean approximation
-      'G': [3, 2],      // Perfect fifth above A (adjusted for octave)
-      'G#': [243, 160]  // Pythagorean approximation
+      'C': [1, 1],       // Reference
+      'C#': [2187, 2048],// Pythagorean augmented unison
+      'D': [9, 8],       // Major whole tone (tone)
+      'D#': [32, 27],    // Pythagorean minor third (minor third)
+      'E': [81, 64],     // Pythagorean major third (ditone)
+      'F': [4, 3],       // Perfect fourth
+      'F#': [729, 512],  // Pythagorean augmented fourth
+      'G': [3, 2],       // Perfect fifth
+      'G#': [6561, 4096],// Pythagorean augmented fifth
+      'A': [27, 16],     // Pythagorean major sixth
+      'A#': [16, 9],     // Pythagorean minor seventh
+      'B': [243, 128]    // Pythagorean major seventh
     };
     
     // Create ratio objects for each base note
@@ -214,20 +211,20 @@ export function initializeTunings(
     }
   } else if (tuningSystem === 'quarter') {
     // Quarter-comma meantone tuning
-    // Implemented as cents deviations from equal temperament
+    // Implemented as cents deviations from equal temperament with C as reference
     const meantoneOffsets: Record<string, number> = {
-      'A': 0,          // Reference
+      'C': 0,         // Reference
+      'C#': -5.9,
+      'D': 3.9,
+      'D#': -7.8,
+      'E': 7.8,
+      'F': -7.8,
+      'F#': 0,
+      'G': 0,
+      'G#': -11.7,
+      'A': 3.9,
       'A#': -13.7,
-      'B': -3.4,
-      'C': -21.5,      // Relative to A
-      'C#': -13.7,
-      'D': -13.7,
-      'D#': -10.3,
-      'E': -6.8,
-      'F': -20.5,      // Relative to A
-      'F#': -13.7,
-      'G': -10.3,      // Relative to A
-      'G#': -6.8
+      'B': 5.9
     };
     
     // Create ratio objects for each base note
@@ -242,20 +239,20 @@ export function initializeTunings(
   } else if (tuningSystem === 'werckmeister3') {
     // Werckmeister III well temperament
     // Historical well temperament from 1691
-    // Implemented as cents deviations from equal temperament
+    // Implemented as cents deviations from equal temperament with C as reference
     const werckmeisterOffsets: Record<string, number> = {
-      'A': 0,       // Reference
-      'A#': -9.8,
-      'B': -7.8,
-      'C': -5.9,
-      'C#': -7.8,
-      'D': -3.9,
+      'C': 0,       // Reference
+      'C#': -5.9,
+      'D': 3.9,
       'D#': -7.8,
-      'E': 0,
-      'F': -2.0,
+      'E': 5.9,
+      'F': -3.9,
       'F#': -7.8,
-      'G': -2.0,
-      'G#': -11.7
+      'G': 3.9,
+      'G#': -9.8,
+      'A': 5.9,
+      'A#': -3.9,
+      'B': -1.9
     };
     
     // Create ratio objects for each base note
@@ -270,20 +267,20 @@ export function initializeTunings(
   } else if (tuningSystem === 'kirnberger3') {
     // Kirnberger III well temperament
     // Historical well temperament from 1779
-    // Implemented as cents deviations from equal temperament
+    // Implemented as cents deviations from equal temperament with C as reference
     const kirnbergerOffsets: Record<string, number> = {
-      'A': 0,       // Reference
-      'A#': -10.3,
-      'B': -3.9,
-      'C': -6.8,
-      'C#': -13.7,
-      'D': -2.0,
-      'D#': -10.3,
-      'E': 0,
-      'F': -8.2,
-      'F#': -5.9,
-      'G': -2.0,
-      'G#': -8.2
+      'C': 0,       // Reference
+      'C#': -6.8,
+      'D': 3.9,
+      'D#': -3.5,
+      'E': 6.8,
+      'F': -2.0,
+      'F#': 1.0,
+      'G': 3.9,
+      'G#': -1.4,
+      'A': 6.8,
+      'A#': -3.5,
+      'B': 2.9
     };
     
     // Create ratio objects for each base note
@@ -298,21 +295,21 @@ export function initializeTunings(
   } else {
     // Equal temperament (the default)
     // In 12-tone equal temperament, each semitone is 100 cents
-    // Starting with A at 0 cents and proceeding through the octave
+    // Starting with C at 0 cents and proceeding through the octave
     
     const equalTemperamentCents: Record<string, number> = {
-      'A': 0,     // Reference note
-      'A#': 100,  // 1 semitone above A
-      'B': 200,   // 2 semitones above A
-      'C': 300,   // 3 semitones above A
-      'C#': 400,  // 4 semitones above A
-      'D': 500,   // 5 semitones above A
-      'D#': 600,  // 6 semitones above A
-      'E': 700,   // 7 semitones above A
-      'F': 800,   // 8 semitones above A
-      'F#': 900,  // 9 semitones above A
-      'G': 1000,  // 10 semitones above A
-      'G#': 1100  // 11 semitones above A
+      'C': 0,     // Reference note
+      'C#': 100,  // 1 semitone above C
+      'D': 200,   // 2 semitones above C
+      'D#': 300,  // 3 semitones above C
+      'E': 400,   // 4 semitones above C
+      'F': 500,   // 5 semitones above C
+      'F#': 600,  // 6 semitones above C
+      'G': 700,   // 7 semitones above C
+      'G#': 800,  // 8 semitones above C
+      'A': 900,   // 9 semitones above C
+      'A#': 1000, // 10 semitones above C
+      'B': 1100   // 11 semitones above C
     };
     
     for (const note of noteNames) {
