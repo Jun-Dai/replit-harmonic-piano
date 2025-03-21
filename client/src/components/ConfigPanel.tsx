@@ -235,13 +235,6 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
               Equal Temperament
             </Button>
             <Button 
-              variant={currentTuningSystem === "Pythagorean" ? "default" : "outline"}
-              onClick={() => selectTuningSystem("pythagorean")}
-              className={currentTuningSystem === "Pythagorean" ? "bg-primary" : ""}
-            >
-              Pythagorean
-            </Button>
-            <Button 
               variant={currentTuningSystem === "Just Intonation" ? "default" : "outline"}
               onClick={() => selectTuningSystem("just")}
               className={currentTuningSystem === "Just Intonation" ? "bg-primary" : ""}
@@ -249,11 +242,32 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
               Just Intonation
             </Button>
             <Button 
+              variant={currentTuningSystem === "Pythagorean" ? "default" : "outline"}
+              onClick={() => selectTuningSystem("pythagorean")}
+              className={currentTuningSystem === "Pythagorean" ? "bg-primary" : ""}
+            >
+              Pythagorean
+            </Button>
+            <Button 
               variant={currentTuningSystem === "Quarter-comma Meantone" ? "default" : "outline"}
               onClick={() => selectTuningSystem("quarter")}
               className={currentTuningSystem === "Quarter-comma Meantone" ? "bg-primary" : ""}
             >
               Quarter-comma Meantone
+            </Button>
+            <Button 
+              variant={currentTuningSystem === "Werckmeister III" ? "default" : "outline"}
+              onClick={() => selectTuningSystem("werckmeister3")}
+              className={currentTuningSystem === "Werckmeister III" ? "bg-primary" : ""}
+            >
+              Werckmeister III
+            </Button>
+            <Button 
+              variant={currentTuningSystem === "Kirnberger III" ? "default" : "outline"}
+              onClick={() => selectTuningSystem("kirnberger3")}
+              className={currentTuningSystem === "Kirnberger III" ? "bg-primary" : ""}
+            >
+              Kirnberger III
             </Button>
           </div>
           
@@ -318,7 +332,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                             disabled
                           />
                         </div>
-                      ) : (
+                      ) : tuningMethod === "ratio" ? (
                         <div className="flex items-center">
                           <Input
                             type="text"
@@ -340,31 +354,47 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                             className="w-20 text-sm font-mono"
                           />
                         </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <span className="text-sm font-mono text-neutral-400">—</span>
+                        </div>
                       )}
                     </TableCell>
                     <TableCell>
-                      <Input
-                        type="number"
-                        value={note.cents}
-                        min={-1200}
-                        max={1200}
-                        step={1}
-                        onChange={(e) => {
-                          // Find all notes with this base name
-                          const baseNotes = Object.keys(noteConfigurations)
-                            .filter(name => name.startsWith(baseName) || 
-                               (noteConfigurations[name].baseName === baseName));
-                          
-                          // Update each note with the new cents value
-                          baseNotes.forEach(name => {
-                            updateNoteConfig(name, { 
-                              cents: parseFloat(e.target.value) 
+                      {isReference ? (
+                        <Input
+                          type="number"
+                          value={0}
+                          className="w-20 text-sm font-mono"
+                          disabled
+                        />
+                      ) : tuningMethod === "cents" ? (
+                        <Input
+                          type="number"
+                          value={note.cents}
+                          min={-1200}
+                          max={1200}
+                          step={1}
+                          onChange={(e) => {
+                            // Find all notes with this base name
+                            const baseNotes = Object.keys(noteConfigurations)
+                              .filter(name => name.startsWith(baseName) || 
+                                (noteConfigurations[name].baseName === baseName));
+                            
+                            // Update each note with the new cents value
+                            baseNotes.forEach(name => {
+                              updateNoteConfig(name, { 
+                                cents: parseFloat(e.target.value) 
+                              });
                             });
-                          });
-                        }}
-                        className="w-20 text-sm font-mono"
-                        disabled={isReference}
-                      />
+                          }}
+                          className="w-20 text-sm font-mono"
+                        />
+                      ) : (
+                        <div className="flex items-center">
+                          <span className="text-sm font-mono text-neutral-400">—</span>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <span className={`font-mono text-sm ${isReference ? 'font-medium text-primary' : ''}`}>

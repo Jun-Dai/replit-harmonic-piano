@@ -297,7 +297,9 @@ const Piano = () => {
       "equal": "Equal Temperament",
       "just": "Just Intonation",
       "pythagorean": "Pythagorean",
-      "quarter": "Quarter-comma Meantone"
+      "quarter": "Quarter-comma Meantone",
+      "werckmeister3": "Werckmeister III",
+      "kirnberger3": "Kirnberger III"
     };
     
     setCurrentTuningSystem(presets[system as keyof typeof presets] || system);
