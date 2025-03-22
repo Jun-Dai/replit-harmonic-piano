@@ -268,7 +268,7 @@ describe('Tuning utilities', () => {
       
       // C4 should be proportionally lower
       expect(tunings432['C4']).toBeDefined();
-      expect(tunings432['C4'].frequency).toBeCloseTo(257.02, 1); // 261.63 * (432/440)
+      expect(tunings432['C4'].frequency).toBeCloseTo(256.87, 1); // 261.63 * (432/440)
     });
   });
 });

@@ -43,8 +43,8 @@ describe('Piano utilities', () => {
     it('should handle the full piano range from A2 to C6', () => {
       const keys = getStandardNoteRange('A2', 'C6');
       
-      // A2 to C6 spans over three octaves = A2 to G3 (11 notes) + A3 to G4 (12 notes) + A4 to G5 (12 notes) + A5 to C6 (4 notes) = 39 notes
-      expect(keys).toHaveLength(39);
+      // A2 to C6 spans over three octaves = A2 to G3 (11 notes) + A3 to G4 (12 notes) + A4 to G5 (12 notes) + A5 to C6 (5 notes) = 40 notes
+      expect(keys).toHaveLength(40);
       expect(keys[0]).toEqual({ note: 'A2', isBlack: false });
       expect(keys[keys.length - 1]).toEqual({ note: 'C6', isBlack: false });
     });
