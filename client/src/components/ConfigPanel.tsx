@@ -199,6 +199,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             </div>
           </div>
 
+          <div className="text-sm text-neutral-500 mb-4 bg-neutral-50 p-3 rounded-md">
+            <p>Using A4 (440Hz) as the reference frequency with C4 as the tuning reference note.
+            All tunings are calculated relative to C4, with C4 frequency = 261.63Hz when A4=440Hz.</p>
+          </div>
+
           <div className="mt-4">
             <div className="flex items-center">
               <Label htmlFor="decay-length" className="mr-2">Sound Decay Length:</Label>
@@ -318,8 +323,9 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                 if (!noteInfo) return null;
                 
                 const [noteName, note] = noteInfo;
-                // Use C as the reference note for tuning (1/1 ratio or 0 cents)
-                // A4 is still the reference for frequency (typically 440Hz)
+                // C is the reference note for tuning (1/1 ratio or 0 cents)
+                // A4 is the reference for frequency (typically 440Hz)
+                // C4 is calculated from A4 (C4 = 261.63Hz when A4 = 440Hz)
                 const isReferenceForTuning = baseName === 'C';
                 const isReferenceForFrequency = noteName === 'A4';
                 
@@ -400,10 +406,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                       )}
                     </TableCell>
                     <TableCell>
-                      <span className={`font-mono text-sm ${isReferenceForFrequency ? 'font-medium text-primary' : ''}`}>
+                      <span className={`font-mono text-sm ${isReferenceForFrequency ? 'font-medium text-primary' : (isReferenceForTuning && noteName && noteName.endsWith('4') ? 'font-medium text-blue-600' : '')}`}>
                         {note.frequency?.toFixed(2) || ''}
                       </span>
-                      {isReferenceForFrequency && <span className="text-xs text-neutral-400 ml-1">(reference)</span>}
+                      {isReferenceForFrequency && <span className="text-xs text-neutral-400 ml-1">(A4 reference)</span>}
+                      {isReferenceForTuning && noteName && noteName.endsWith('4') && <span className="text-xs text-neutral-400 ml-1">(C4 reference)</span>}
                     </TableCell>
                   </TableRow>
                 );

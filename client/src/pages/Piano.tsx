@@ -129,7 +129,8 @@ const Piano = () => {
     setCurrentlyPlaying({
       note: noteName,
       frequency,
-      tuning: noteName === 'A4' ? 'Reference Frequency (440Hz)' : 
+      tuning: noteName === 'A4' ? `Reference A4 (440Hz, 9 semitones above C4)` : 
+        noteConfigurations[noteName].baseName === 'C' && noteName.endsWith('4') ? `Reference C4 (${a4ToC4Frequency(baseFrequency).toFixed(2)}Hz)` :
         noteConfigurations[noteName].baseName === 'C' ? `Reference Note (${tuningMethod === 'ratio' ? '1/1' : '0 cents'})` :
         `${tuningMethod === 'ratio' ? 
           (noteConfigurations[noteName].ratio || 
@@ -184,10 +185,10 @@ const Piano = () => {
         updatedNote.ratioDenominator = denom;
       }
       
-      // Calculate updated frequency
+      // Calculate updated frequency using C4 reference
       updatedNote.frequency = calculateFrequency(
         noteName, 
-        baseFrequency, 
+        a4ToC4Frequency(baseFrequency), 
         updatedNote.ratioNumerator, 
         updatedNote.ratioDenominator,
         updatedNote.cents
@@ -208,7 +209,7 @@ const Piano = () => {
     for (const [noteName, note] of Object.entries(noteConfigurations)) {
       const frequency = calculateFrequency(
         noteName, 
-        baseFrequency, 
+        a4ToC4Frequency(baseFrequency), 
         note.ratioNumerator, 
         note.ratioDenominator,
         note.cents
