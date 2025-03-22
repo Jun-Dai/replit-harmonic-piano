@@ -190,11 +190,12 @@ export function initializeTunings(
     // Create ratio objects for each base note
     for (const note of noteNames) {
       const [num, denom] = justRatios[note];
+      const centValue = ratioToCents(num, denom);
       baseNoteRatios[note] = {
         ratioNumerator: num,
         ratioDenominator: denom,
         ratio: `${num}/${denom}`,
-        cents: 0 // Initially no cents adjustment
+        cents: parseFloat(centValue.toFixed(1)) // Store cents value for conversion purposes
       };
     }
   } else if (tuningSystem === 'pythagorean') {
@@ -217,94 +218,102 @@ export function initializeTunings(
     // Create ratio objects for each base note
     for (const note of noteNames) {
       const [num, denom] = pythagoreanRatios[note];
+      const centValue = ratioToCents(num, denom);
       baseNoteRatios[note] = {
         ratioNumerator: num,
         ratioDenominator: denom,
         ratio: `${num}/${denom}`,
-        cents: 0
+        cents: parseFloat(centValue.toFixed(1))
       };
     }
   } else if (tuningSystem === 'quarter') {
     // Quarter-comma meantone tuning
-    // Implemented as cents deviations from equal temperament with C as reference
-    const meantoneOffsets: Record<string, number> = {
-      'C': 0,         // Reference
-      'C#': -5.9,
-      'D': 3.9,
-      'D#': -7.8,
-      'E': 7.8,
-      'F': -7.8,
-      'F#': 0,
-      'G': 0,
-      'G#': -11.7,
-      'A': 3.9,
-      'A#': -13.7,
-      'B': 5.9
+    // Historical temperament with pure major thirds
+    // Absolute cents from C reference
+    const meantoneCents: Record<string, number> = {
+      'C': 0,        // Reference note
+      'C#': 76.0,    // Rather than 100 in equal temperament
+      'D': 193.2,    // Rather than 200 in equal temperament
+      'D#': 310.3,   // Rather than 300 in equal temperament
+      'E': 386.3,    // Rather than 400 in equal temperament (pure major third)
+      'F': 503.4,    // Rather than 500 in equal temperament
+      'F#': 579.5,   // Rather than 600 in equal temperament
+      'G': 696.6,    // Rather than 700 in equal temperament
+      'G#': 772.6,   // Rather than 800 in equal temperament
+      'A': 889.7,    // Rather than 900 in equal temperament
+      'A#': 1006.8,  // Rather than 1000 in equal temperament
+      'B': 1082.9    // Rather than 1100 in equal temperament
     };
     
     // Create ratio objects for each base note
     for (const note of noteNames) {
+      // Convert cents to ratio for storage
+      const [num, denom] = centsToRatio(meantoneCents[note]);
       baseNoteRatios[note] = {
-        ratioNumerator: 1,
-        ratioDenominator: 1,
-        ratio: "1/1",
-        cents: meantoneOffsets[note] // Use cents-based adjustment
+        ratioNumerator: num,
+        ratioDenominator: denom,
+        ratio: `${num}/${denom}`,
+        cents: meantoneCents[note]
       };
     }
   } else if (tuningSystem === 'werckmeister3') {
     // Werckmeister III well temperament
     // Historical well temperament from 1691
-    // Implemented as cents deviations from equal temperament with C as reference
-    const werckmeisterOffsets: Record<string, number> = {
+    // Absolute cents from C reference
+    const werckmeisterCents: Record<string, number> = {
       'C': 0,       // Reference
-      'C#': -5.9,
-      'D': 3.9,
-      'D#': -7.8,
-      'E': 5.9,
-      'F': -3.9,
-      'F#': -7.8,
-      'G': 3.9,
-      'G#': -9.8,
-      'A': 5.9,
-      'A#': -3.9,
-      'B': -1.9
+      'C#': 90.2,   // Rather than 100 in equal temperament
+      'D': 196.1,   // Rather than 200 in equal temperament
+      'D#': 294.1,  // Rather than 300 in equal temperament
+      'E': 392.2,   // Rather than 400 in equal temperament
+      'F': 498.0,   // Rather than 500 in equal temperament
+      'F#': 588.3,  // Rather than 600 in equal temperament
+      'G': 698.0,   // Rather than 700 in equal temperament
+      'G#': 792.2,  // Rather than 800 in equal temperament
+      'A': 894.1,   // Rather than 900 in equal temperament
+      'A#': 996.1,  // Rather than 1000 in equal temperament
+      'B': 1092.2   // Rather than 1100 in equal temperament
     };
     
     // Create ratio objects for each base note
     for (const note of noteNames) {
+      // Convert cents to ratio for storage
+      const [num, denom] = centsToRatio(werckmeisterCents[note]);
       baseNoteRatios[note] = {
-        ratioNumerator: 1,
-        ratioDenominator: 1,
-        ratio: "1/1",
-        cents: werckmeisterOffsets[note] // Use cents-based adjustment
+        ratioNumerator: num,
+        ratioDenominator: denom,
+        ratio: `${num}/${denom}`,
+        cents: werckmeisterCents[note]
       };
     }
   } else if (tuningSystem === 'kirnberger3') {
     // Kirnberger III well temperament
     // Historical well temperament from 1779
-    // Implemented as cents deviations from equal temperament with C as reference
-    const kirnbergerOffsets: Record<string, number> = {
+    // Absolute cents from C reference
+    const kirnbergerCents: Record<string, number> = {
       'C': 0,       // Reference
-      'C#': -6.8,
-      'D': 3.9,
-      'D#': -3.5,
-      'E': 6.8,
-      'F': -2.0,
-      'F#': 1.0,
-      'G': 3.9,
-      'G#': -1.4,
-      'A': 6.8,
-      'A#': -3.5,
-      'B': 2.9
+      'C#': 90.2,   // Rather than 100 in equal temperament
+      'D': 204.0,   // Rather than 200 in equal temperament
+      'E': 386.3,   // Rather than 400 in equal temperament (pure major third)
+      'D#': 294.1,  // Rather than 300 in equal temperament
+      'F': 498.0,   // Rather than 500 in equal temperament
+      'F#': 590.2,  // Rather than 600 in equal temperament
+      'G': 702.0,   // Rather than 700 in equal temperament (pure fifth)
+      'G#': 792.2,  // Rather than 800 in equal temperament
+      'A': 895.1,   // Rather than 900 in equal temperament
+      'A#': 996.1,  // Rather than 1000 in equal temperament
+      'B': 1088.3   // Rather than 1100 in equal temperament
     };
     
     // Create ratio objects for each base note
     for (const note of noteNames) {
+      // Convert cents to ratio for storage
+      const [num, denom] = centsToRatio(kirnbergerCents[note]);
       baseNoteRatios[note] = {
-        ratioNumerator: 1,
-        ratioDenominator: 1,
-        ratio: "1/1",
-        cents: kirnbergerOffsets[note] // Use cents-based adjustment
+        ratioNumerator: num,
+        ratioDenominator: denom,
+        ratio: `${num}/${denom}`,
+        cents: kirnbergerCents[note]
       };
     }
   } else {
@@ -352,17 +361,18 @@ export function initializeTunings(
       if (fullNote === 'A4') {
         // For A4, we use the user-defined base frequency
         // But still maintain the C-based tuning system
-        // So A4 still has a cents value of 900 (9 semitones above C4)
-        // but its frequency is fixed at the reference frequency (typically 440Hz)
-        const centsFromC = 900; // A is 9 semitones above C
+        // We set proper cents/ratio values for A but ensure frequency is fixed
+        
+        // Get the base tuning for A
+        const aBaseNote = baseNoteRatios['A'];
         
         notes[fullNote] = {
           name: fullNote,
           baseName: noteName,
-          ratio: "1/1", // Simple ratio for the reference pitch
-          ratioNumerator: 1,
-          ratioDenominator: 1,
-          cents: centsFromC,
+          ratio: aBaseNote.ratio, // Proper ratio for A in this tuning system
+          ratioNumerator: aBaseNote.ratioNumerator,
+          ratioDenominator: aBaseNote.ratioDenominator,
+          cents: aBaseNote.cents, // Proper cents for A in this tuning system
           frequency: baseFrequency // This is the reference frequency (e.g., 440Hz)
         };
         continue;

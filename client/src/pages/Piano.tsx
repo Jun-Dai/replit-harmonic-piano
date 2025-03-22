@@ -378,6 +378,24 @@ const Piano = () => {
     // Apply the selected tuning system
     const tunings = initializeTunings(baseFrequency, system);
     setNoteConfigurations(tunings);
+    
+    // For Just Intonation and Pythagorean, switch to ratio display
+    // For other temperaments, switch to cents display
+    if (system === 'just' || system === 'pythagorean') {
+      setTuningMethod('ratio');
+      toast({
+        title: `Tuning Method: Just Intonation Ratio`,
+        description: `Switched to ratio display for ${presets[system as keyof typeof presets]}.`,
+        duration: 3000
+      });
+    } else {
+      setTuningMethod('cents');
+      toast({
+        title: `Tuning Method: Cents`,
+        description: `Switched to cents display for ${presets[system as keyof typeof presets]}.`,
+        duration: 3000
+      });
+    }
   };
 
   return (
