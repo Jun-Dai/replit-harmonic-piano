@@ -134,17 +134,19 @@ describe('ConfigPanel', () => {
     // Initially the load dialog should not be visible
     expect(screen.queryByText('Load Configuration')).not.toBeInTheDocument();
     
-    // Click the load button
+    // Click the load button - using FolderOpen icon
     const loadButton = screen.getByRole('button', { name: /load/i });
     fireEvent.click(loadButton);
     
     // Now the load dialog should be visible
     expect(screen.getByText('Load Configuration')).toBeInTheDocument();
+    
+    // Verify saved tunings are visible
     expect(screen.getByText('Saved Tuning 1')).toBeInTheDocument();
     expect(screen.getByText('Saved Tuning 2')).toBeInTheDocument();
     
-    // Click the cancel button
-    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    // Find and click the cancel button
+    const cancelButton = screen.getByText('Cancel');
     fireEvent.click(cancelButton);
     
     // Dialog should be hidden again
@@ -158,9 +160,9 @@ describe('ConfigPanel', () => {
     const loadButton = screen.getByRole('button', { name: /load/i });
     fireEvent.click(loadButton);
     
-    // Click on a saved configuration
-    const savedConfig = screen.getByText('Saved Tuning 1');
-    fireEvent.click(savedConfig);
+    // Find and click on the load button for the first saved config
+    const loadConfigs = screen.getAllByText('Load');
+    fireEvent.click(loadConfigs[0]); // Click the first "Load" button
     
     // Check that the loadTuningConfig function was called with the correct ID
     expect(mockProps.loadTuningConfig).toHaveBeenCalledWith(1);
@@ -172,7 +174,8 @@ describe('ConfigPanel', () => {
   it('calls handleSaveConfig when save button is clicked', () => {
     render(<ConfigPanel {...mockProps} />);
     
-    const saveButton = screen.getByRole('button', { name: /save/i });
+    // Look for Save button by text content
+    const saveButton = screen.getByText('Save');
     fireEvent.click(saveButton);
     
     expect(mockProps.handleSaveConfig).toHaveBeenCalled();

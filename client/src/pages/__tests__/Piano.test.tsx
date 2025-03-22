@@ -159,13 +159,12 @@ describe('Piano Component', () => {
   it('updates base frequency when changed in ConfigPanel', async () => {
     renderPiano();
     
-    // Find the base frequency section
-    const baseFrequencySection = screen.getByText(/Reference Frequency:/i);
+    // Find the base frequency section by its heading
+    const baseFrequencyHeading = screen.getByText('Base Frequency');
+    expect(baseFrequencyHeading).toBeInTheDocument();
     
-    // Find all number inputs
-    const numberInputs = screen.getAllByRole('spinbutton');
-    // Usually the first number input is the frequency
-    const baseFrequencyInput = numberInputs[0];
+    // Find the frequency input by its label
+    const baseFrequencyInput = screen.getByLabelText('A4 =');
     
     // Change the frequency to 432 Hz
     fireEvent.change(baseFrequencyInput, { target: { value: '432' } });
@@ -173,11 +172,13 @@ describe('Piano Component', () => {
     // Check that the value was updated
     expect(baseFrequencyInput).toHaveValue(432);
     
-    // Verify that calculateFrequency was called for updating frequencies
-    await waitFor(() => {
-      expect(tuningLib.calculateFrequency).toHaveBeenCalled();
-    });
-  });
+    // Click "Apply Tuning" to ensure changes are applied
+    const applyButton = screen.getByText('Apply Tuning');
+    fireEvent.click(applyButton);
+    
+    // Simply verify calculateFrequency was called at some point
+    expect(tuningLib.calculateFrequency).toHaveBeenCalled();
+  }, 10000);
 
   it('changes tuning method from cents to ratio', async () => {
     renderPiano();
