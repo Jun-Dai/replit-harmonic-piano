@@ -320,6 +320,64 @@ export function initializeTunings(
         cents: kirnbergerCents[note]
       };
     }
+  } else if (tuningSystem === 'youngWellTuned') {
+    // La Monte Young's Well-Tuned Piano
+    // Based on unique 7-limit just intonation with specific intervals
+    const youngRatios: Record<string, [number, number]> = {
+      'C': [1, 1],      // Reference
+      'C#': [567, 512], // Approximating Young's tuning
+      'D': [9, 8],      // Major whole tone
+      'D#': [147, 128], // Sharp minor third (based on 7-limit)
+      'E': [21, 16],    // 7-limit major third
+      'F': [4, 3],      // Perfect fourth
+      'F#': [189, 128], // Augmented fourth (based on 7-limit JI)
+      'G': [3, 2],      // Perfect fifth
+      'G#': [49, 32],   // 7-limit augmented fifth
+      'A': [7, 4],      // 7-limit major sixth
+      'A#': [16, 9],    // Pythagorean minor seventh
+      'B': [63, 32]     // 7-limit major seventh
+    };
+    
+    // Create ratio objects for each base note
+    for (const note of noteNames) {
+      const [num, denom] = youngRatios[note];
+      const centValue = ratioToCents(num, denom);
+      baseNoteRatios[note] = {
+        ratioNumerator: num,
+        ratioDenominator: denom,
+        ratio: `${num}/${denom}`,
+        cents: parseFloat(centValue.toFixed(1))
+      };
+    }
+  } else if (tuningSystem === 'centaur') {
+    // 7-limit Centaur tuning
+    // Based on 7-limit just intonation with harmonics of prime numbers up to 7
+    const centaurRatios: Record<string, [number, number]> = {
+      'C': [1, 1],      // Reference
+      'C#': [8, 7],     // 7-limit minor second
+      'D': [9, 8],      // 9/8 major second
+      'D#': [7, 6],     // 7/6 minor third
+      'E': [5, 4],      // 5/4 major third
+      'F': [4, 3],      // 4/3 perfect fourth
+      'F#': [7, 5],     // 7/5 augmented fourth
+      'G': [3, 2],      // 3/2 perfect fifth
+      'G#': [7, 4],     // 7/4 harmonic seventh
+      'A': [5, 3],      // 5/3 major sixth
+      'A#': [7, 3],     // 7/3 harmonic seventh above fifth
+      'B': [15, 8]      // 15/8 major seventh
+    };
+    
+    // Create ratio objects for each base note
+    for (const note of noteNames) {
+      const [num, denom] = centaurRatios[note];
+      const centValue = ratioToCents(num, denom);
+      baseNoteRatios[note] = {
+        ratioNumerator: num,
+        ratioDenominator: denom,
+        ratio: `${num}/${denom}`,
+        cents: parseFloat(centValue.toFixed(1))
+      };
+    }
   } else {
     // Equal temperament (the default)
     // In 12-tone equal temperament, each semitone is 100 cents

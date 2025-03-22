@@ -373,7 +373,9 @@ const Piano = () => {
       "pythagorean": "Pythagorean",
       "quarter": "Quarter-comma Meantone",
       "werckmeister3": "Werckmeister III",
-      "kirnberger3": "Kirnberger III"
+      "kirnberger3": "Kirnberger III",
+      "youngWellTuned": "Young's Well-Tuned Piano",
+      "centaur": "7-limit Centaur"
     };
     
     setCurrentTuningSystem(presets[system as keyof typeof presets] || system);
@@ -382,9 +384,10 @@ const Piano = () => {
     const tunings = initializeTunings(baseFrequency, system);
     setNoteConfigurations(tunings);
     
-    // For Just Intonation and Pythagorean, switch to ratio display
+    // For Just Intonation based systems, switch to ratio display
     // For other temperaments, switch to cents display
-    if (system === 'just' || system === 'pythagorean') {
+    if (system === 'just' || system === 'pythagorean' || 
+        system === 'youngWellTuned' || system === 'centaur') {
       setTuningMethod('ratio');
       toast({
         title: `Tuning Method: Just Intonation Ratio`,
