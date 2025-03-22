@@ -13,11 +13,11 @@ describe('PianoKeyboard', () => {
   ];
   
   const mockNoteConfigurations: Record<string, Note> = {
-    'C4': { note: 'C4', ratioNumerator: 1, ratioDenominator: 1, cents: 0, frequency: 261.63 },
-    'C#4': { note: 'C#4', ratioNumerator: 16, ratioDenominator: 15, cents: 100, frequency: 277.18 },
-    'D4': { note: 'D4', ratioNumerator: 9, ratioDenominator: 8, cents: 200, frequency: 293.66 },
-    'D#4': { note: 'D#4', ratioNumerator: 6, ratioDenominator: 5, cents: 300, frequency: 311.13 },
-    'E4': { note: 'E4', ratioNumerator: 5, ratioDenominator: 4, cents: 400, frequency: 329.63 }
+    'C4': { name: 'C4', ratioNumerator: 1, ratioDenominator: 1, cents: 0, frequency: 261.63, ratio: '1/1', baseName: 'C' },
+    'C#4': { name: 'C#4', ratioNumerator: 16, ratioDenominator: 15, cents: 100, frequency: 277.18, ratio: '16/15', baseName: 'C#' },
+    'D4': { name: 'D4', ratioNumerator: 9, ratioDenominator: 8, cents: 200, frequency: 293.66, ratio: '9/8', baseName: 'D' },
+    'D#4': { name: 'D#4', ratioNumerator: 6, ratioDenominator: 5, cents: 300, frequency: 311.13, ratio: '6/5', baseName: 'D#' },
+    'E4': { name: 'E4', ratioNumerator: 5, ratioDenominator: 4, cents: 400, frequency: 329.63, ratio: '5/4', baseName: 'E' }
   };
   
   // Mock functions

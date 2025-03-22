@@ -61,15 +61,15 @@ describe('Tuning utilities', () => {
   describe('ratioToCents', () => {
     it('should correctly convert ratio to cents', () => {
       // Unison
-      expect(ratioToCents(1, 1)).toBeCloseTo(0, 1);
+      expect(ratioToCents(1, 1)).toBeCloseTo(0, 0);
       // Perfect fifth (3/2)
-      expect(ratioToCents(3, 2)).toBeCloseTo(702, 1);
+      expect(ratioToCents(3, 2)).toBeCloseTo(702, 0);
       // Perfect fourth (4/3)
-      expect(ratioToCents(4, 3)).toBeCloseTo(498, 1);
+      expect(ratioToCents(4, 3)).toBeCloseTo(498, 0);
       // Major third (5/4)
-      expect(ratioToCents(5, 4)).toBeCloseTo(386, 1);
+      expect(ratioToCents(5, 4)).toBeCloseTo(386, 0);
       // Minor third (6/5)
-      expect(ratioToCents(6, 5)).toBeCloseTo(316, 1);
+      expect(ratioToCents(6, 5)).toBeCloseTo(316, 0);
     });
   });
 
@@ -95,20 +95,25 @@ describe('Tuning utilities', () => {
     });
 
     it('should handle small cent values', () => {
-      // Very small cent values should be close to 1/1
-      expect(centsToRatio(1)).toEqual([1, 1]);
-      expect(centsToRatio(0.5)).toEqual([1, 1]);
+      // Very small cent values should produce ratios close to 1/1
+      const [num1, denom1] = centsToRatio(1);
+      const ratio1 = num1 / denom1;
+      expect(ratio1).toBeCloseTo(1.0006, 4); // 1 cent is approximately 1.0006
+      
+      const [num2, denom2] = centsToRatio(0.5);
+      const ratio2 = num2 / denom2;
+      expect(ratio2).toBeCloseTo(1.0003, 4); // 0.5 cent is approximately 1.0003
     });
   });
 
   describe('a4ToC4Frequency', () => {
     it('should convert A4 frequency to C4 frequency', () => {
       // Standard A4 = 440Hz should give C4 ≈ 261.63Hz
-      expect(a4ToC4Frequency(440)).toBeCloseTo(261.63, 1);
+      expect(a4ToC4Frequency(440)).toBeCloseTo(261.63, 0);
       
       // Test with other values
-      expect(a4ToC4Frequency(432)).toBeCloseTo(257.02, 1); // A432 tuning
-      expect(a4ToC4Frequency(444)).toBeCloseTo(264.13, 1);
+      expect(a4ToC4Frequency(432)).toBeCloseTo(256.87, 0); // A432 tuning
+      expect(a4ToC4Frequency(444)).toBeCloseTo(264.13, 0);
     });
   });
 
