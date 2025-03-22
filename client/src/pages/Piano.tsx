@@ -129,8 +129,8 @@ const Piano = () => {
     setCurrentlyPlaying({
       note: noteName,
       frequency,
-      tuning: noteName === 'A4' ? `Reference A4 (440Hz, 9 semitones above C4)` : 
-        noteConfigurations[noteName].baseName === 'C' && noteName.endsWith('4') ? `Reference C4 (${a4ToC4Frequency(baseFrequency).toFixed(2)}Hz)` :
+      tuning: noteConfigurations[noteName].baseName === 'C' && noteName.endsWith('4') ? `Reference C4 (${a4ToC4Frequency(baseFrequency).toFixed(2)}Hz)` :
+        noteName === 'A4' ? `A4 (${tuningMethod === 'ratio' ? noteConfigurations[noteName].ratio : `${noteConfigurations[noteName].cents} cents`} from C4)` : 
         noteConfigurations[noteName].baseName === 'C' ? `Reference Note (${tuningMethod === 'ratio' ? '1/1' : '0 cents'})` :
         `${tuningMethod === 'ratio' ? 
           (noteConfigurations[noteName].ratio || 

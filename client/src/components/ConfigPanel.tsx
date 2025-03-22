@@ -200,8 +200,9 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </div>
 
           <div className="text-sm text-neutral-500 mb-4 bg-neutral-50 p-3 rounded-md">
-            <p>Using A4 (440Hz) as the reference frequency with C4 as the tuning reference note.
-            All tunings are calculated relative to C4, with C4 frequency = 261.63Hz when A4=440Hz.</p>
+            <p>The "Base Frequency" sets the reference C4 frequency via the standard A4 frequency value (C4=261.63Hz when A4=440Hz in equal temperament).
+            All notes, including A4, will be tuned based on their relationship to C4 according to the selected tuning system.
+            In non-equal temperaments, A4 will not necessarily be exactly 440Hz.</p>
           </div>
 
           <div className="mt-4">
@@ -409,8 +410,8 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                       <span className={`font-mono text-sm ${isReferenceForFrequency ? 'font-medium text-primary' : (isReferenceForTuning && noteName && noteName.endsWith('4') ? 'font-medium text-blue-600' : '')}`}>
                         {note.frequency?.toFixed(2) || ''}
                       </span>
-                      {isReferenceForFrequency && <span className="text-xs text-neutral-400 ml-1">(A4 reference)</span>}
-                      {isReferenceForTuning && noteName && noteName.endsWith('4') && <span className="text-xs text-neutral-400 ml-1">(C4 reference)</span>}
+                      {isReferenceForFrequency && <span className="text-xs text-neutral-400 ml-1">(input A4)</span>}
+                      {isReferenceForTuning && noteName && noteName.endsWith('4') && <span className="text-xs text-neutral-400 ml-1">(tuning reference)</span>}
                     </TableCell>
                   </TableRow>
                 );

@@ -374,9 +374,9 @@ export function initializeTunings(
         baseRatio.cents
       );
       
-      // Special case for A4 - ensure the exact input frequency is preserved
-      // This helps maintain A4=440Hz regardless of tuning system
-      const frequencyToUse = (fullNote === 'A4') ? a4Frequency : frequency;
+      // Use the calculated frequency for all notes, including A4
+      // This ensures the tuning system is consistently applied
+      const frequencyToUse = frequency;
       
       // Store the note configuration
       notes[fullNote] = {
