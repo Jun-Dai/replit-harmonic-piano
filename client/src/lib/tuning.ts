@@ -355,17 +355,17 @@ export function initializeTunings(
     // Based on 7-limit just intonation with harmonics of prime numbers up to 7
     const centaurRatios: Record<string, [number, number]> = {
       'C': [1, 1],      // Reference
-      'C#': [21, 20],   // C to C# ratio in 7-limit Centaur tuning
-      'D': [9, 8],      // 9/8 major second
-      'D#': [7, 6],     // 7/6 minor third
-      'E': [5, 4],      // 5/4 major third
-      'F': [4, 3],      // 4/3 perfect fourth
-      'F#': [7, 5],     // 7/5 augmented fourth
-      'G': [3, 2],      // 3/2 perfect fifth
-      'G#': [7, 4],     // 7/4 harmonic seventh
-      'A': [5, 3],      // 5/3 major sixth
-      'A#': [7, 3],     // 7/3 harmonic seventh above fifth
-      'B': [15, 8]      // 15/8 major seventh
+      'C#': [21, 20],   // C to C# ratio in 7-limit Centaur tuning (85 cents)
+      'D': [9, 8],      // Just major second (204 cents)
+      'D#': [7, 6],     // 7-limit minor third (267 cents)
+      'E': [5, 4],      // Just major third (386 cents)
+      'F': [4, 3],      // Just perfect fourth (498 cents) 
+      'F#': [7, 5],     // 7-limit tritone (583 cents)
+      'G': [3, 2],      // Just perfect fifth (702 cents)
+      'G#': [14, 9],    // 7-limit minor sixth (765 cents)
+      'A': [5, 3],      // Just major sixth (884 cents)
+      'A#': [7, 4],     // 7-limit harmonic seventh (969 cents)
+      'B': [15, 8]      // Just major seventh (1088 cents)
     };
     
     // Create ratio objects for each base note
