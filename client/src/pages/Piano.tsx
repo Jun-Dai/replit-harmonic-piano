@@ -4,7 +4,7 @@ import ConfigPanel from "@/components/ConfigPanel";
 import InfoPanel from "@/components/InfoPanel";
 import { Note, TuningConfig } from "@shared/schema";
 import { createAudioContext, getStandardNoteRange } from "@/lib/piano";
-import { calculateFrequency, initializeTunings, parseRatioString, ratioToCents, centsToRatio } from "@/lib/tuning";
+import { calculateFrequency, initializeTunings, parseRatioString, ratioToCents, centsToRatio, a4ToC4Frequency } from "@/lib/tuning";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -26,7 +26,7 @@ const Piano = () => {
   const [activeGainNodes, setActiveGainNodes] = useState<Record<string, GainNode>>({});
   
   // Configuration state
-  const [baseFrequency, setBaseFrequency] = useState<number>(440);
+  const [baseFrequency, setBaseFrequency] = useState<number>(440); // A4 = 440Hz (reference)
   const [decayLength, setDecayLength] = useState<number>(3.0);
   const [tuningMethod, setTuningMethod] = useState<"ratio" | "cents">("cents");
   const [currentTuningSystem, setCurrentTuningSystem] = useState<string>("Equal Temperament");
@@ -55,9 +55,11 @@ const Piano = () => {
   useEffect(() => {
     if (Object.keys(noteConfigurations).length > 0) {
       const updatedNotes: Record<string, Note> = {};
+      // Convert A4 frequency to C4 frequency
+      const c4Frequency = a4ToC4Frequency(baseFrequency);
       
       for (const [noteName, note] of Object.entries(noteConfigurations)) {
-        const frequency = calculateFrequency(noteName, baseFrequency, note.ratioNumerator, note.ratioDenominator, note.cents);
+        const frequency = calculateFrequency(noteName, c4Frequency, note.ratioNumerator, note.ratioDenominator, note.cents);
         updatedNotes[noteName] = {
           ...note,
           frequency
@@ -97,7 +99,7 @@ const Piano = () => {
     
     // Calculate the frequency for this note
     const frequency = noteConfigurations[noteName].frequency || 
-      calculateFrequency(noteName, baseFrequency, 
+      calculateFrequency(noteName, a4ToC4Frequency(baseFrequency), 
         noteConfigurations[noteName].ratioNumerator, 
         noteConfigurations[noteName].ratioDenominator,
         noteConfigurations[noteName].cents);

@@ -22,12 +22,12 @@ export function parseRatioString(ratioStr: string): [number, number] {
 
 /**
  * Calculate frequency for a note based on tuning parameters
- * This function calculates frequencies in a C-based tuning system while
- * maintaining A4=440Hz as a reference frequency
+ * This function calculates frequencies in a C-based tuning system with
+ * C4 as the reference frequency (default 261.63 Hz, equivalent to A4=440Hz in equal temperament)
  */
 export function calculateFrequency(
   noteName: string,
-  baseFrequency: number, // A4 frequency, typically 440Hz
+  c4Frequency: number, // C4 reference frequency (default 261.63 Hz) 
   ratioNumerator: number,
   ratioDenominator: number,
   cents: number
@@ -35,15 +35,6 @@ export function calculateFrequency(
   // Extract note name and octave
   const baseName = getBaseNoteName(noteName);
   const octave = getNoteOctave(noteName);
-  
-  // For our reference note A4, just return the base frequency directly
-  if (noteName === 'A4') {
-    return baseFrequency;
-  }
-  
-  // Calculate C4 frequency based on A4=440Hz
-  // A4 is 9 semitones above C4 in equal temperament
-  const c4Frequency = baseFrequency * Math.pow(2, -9/12); // ~261.63 Hz
   
   // Calculate octave multiplier relative to C4
   const octaveDiff = octave - 4;
@@ -148,12 +139,25 @@ export function centsToRatio(cents: number): [number, number] {
 }
 
 /**
+ * Convert A4 frequency to equivalent C4 frequency
+ * In equal temperament, A4 is 9 semitones above C4
+ */
+export function a4ToC4Frequency(a4Frequency: number): number {
+  return a4Frequency * Math.pow(2, -9/12); // ~261.63 Hz when A4=440Hz
+}
+
+/**
  * Initialize tunings for all notes based on a tuning system
+ * @param a4Frequency The frequency of A4 (typically 440Hz)
+ * @param tuningSystem The tuning system to use
+ * @returns A record of all notes with their tuning information
  */
 export function initializeTunings(
-  baseFrequency: number = 440,
+  a4Frequency: number = 440,
   tuningSystem: string = 'equal'
 ): Record<string, Note> {
+  // Convert A4 frequency to C4 frequency (our actual reference)
+  const c4Frequency = a4ToC4Frequency(a4Frequency);
   // Define notes in standard order with C first (standard musical convention)
   const noteNames = [
     'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'
@@ -357,38 +361,22 @@ export function initializeTunings(
         continue;
       }
       
-      // Special case for A4 (reference pitch note, typically 440Hz)
-      if (fullNote === 'A4') {
-        // For A4, we use the user-defined base frequency
-        // But still maintain the C-based tuning system
-        // We set proper cents/ratio values for A but ensure frequency is fixed
-        
-        // Get the base tuning for A
-        const aBaseNote = baseNoteRatios['A'];
-        
-        notes[fullNote] = {
-          name: fullNote,
-          baseName: noteName,
-          ratio: aBaseNote.ratio, // Proper ratio for A in this tuning system
-          ratioNumerator: aBaseNote.ratioNumerator,
-          ratioDenominator: aBaseNote.ratioDenominator,
-          cents: aBaseNote.cents, // Proper cents for A in this tuning system
-          frequency: baseFrequency // This is the reference frequency (e.g., 440Hz)
-        };
-        continue;
-      }
-      
       // Get the base tuning for this note
       const baseRatio = baseNoteRatios[noteName];
       
       // Calculate the frequency based on the tuning parameters
+      // We pass c4Frequency to our calculation
       const frequency = calculateFrequency(
         fullNote, 
-        baseFrequency, 
+        c4Frequency, 
         baseRatio.ratioNumerator, 
         baseRatio.ratioDenominator, 
         baseRatio.cents
       );
+      
+      // Special case for A4 - ensure the exact input frequency is preserved
+      // This helps maintain A4=440Hz regardless of tuning system
+      const frequencyToUse = (fullNote === 'A4') ? a4Frequency : frequency;
       
       // Store the note configuration
       notes[fullNote] = {
@@ -398,7 +386,7 @@ export function initializeTunings(
         ratioNumerator: baseRatio.ratioNumerator,
         ratioDenominator: baseRatio.ratioDenominator,
         cents: baseRatio.cents,
-        frequency
+        frequency: frequencyToUse
       };
     }
   }
