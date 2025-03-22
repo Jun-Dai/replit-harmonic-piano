@@ -6,7 +6,8 @@ import {
   ratioToCents, 
   centsToRatio, 
   a4ToC4Frequency,
-  calculateFrequency
+  calculateFrequency,
+  initializeTunings
 } from '../tuning';
 
 describe('Tuning utilities', () => {
@@ -140,6 +141,129 @@ describe('Tuning utilities', () => {
       
       // C3 should be half of C4
       expect(calculateFrequency('C3', 261.63, 1, 1, 0)).toBeCloseTo(130.81, 1);
+    });
+  });
+
+  describe('initializeTunings', () => {
+    it('should initialize equal temperament tuning by default', () => {
+      const tunings = initializeTunings(440); // A4 = 440Hz
+
+      // Check that we have a good range of notes
+      expect(Object.keys(tunings).length).toBeGreaterThan(20); // Should include many notes
+
+      // Check C4 properties
+      expect(tunings['C4']).toBeDefined();
+      expect(tunings['C4'].frequency).toBeCloseTo(261.63, 1);
+      expect(tunings['C4'].cents).toBe(0);
+
+      // Check A4 properties
+      expect(tunings['A4']).toBeDefined();
+      expect(tunings['A4'].frequency).toBeCloseTo(440, 1);
+      expect(tunings['A4'].cents).toBe(900);
+    });
+
+    it('should initialize just intonation tuning', () => {
+      const tunings = initializeTunings(440, 'just');
+
+      // Check key just intonation intervals
+      expect(tunings['C4']).toBeDefined();
+      expect(tunings['C4'].ratio).toBe('1/1');
+      expect(tunings['C4'].frequency).toBeCloseTo(261.63, 1);
+
+      // Perfect fifth (3/2)
+      expect(tunings['G4']).toBeDefined();
+      expect(tunings['G4'].ratio).toBe('3/2');
+      expect(tunings['G4'].ratioNumerator).toBe(3);
+      expect(tunings['G4'].ratioDenominator).toBe(2);
+      expect(tunings['G4'].frequency).toBeCloseTo(392.45, 1);
+
+      // Major third (5/4)
+      expect(tunings['E4']).toBeDefined();
+      expect(tunings['E4'].ratio).toBe('5/4');
+      expect(tunings['E4'].ratioNumerator).toBe(5);
+      expect(tunings['E4'].ratioDenominator).toBe(4);
+      expect(tunings['E4'].frequency).toBeCloseTo(327.04, 1);
+    });
+
+    it('should initialize pythagorean tuning', () => {
+      const tunings = initializeTunings(440, 'pythagorean');
+
+      // Check key pythagorean intervals
+      expect(tunings['C4']).toBeDefined();
+      expect(tunings['C4'].ratio).toBe('1/1');
+
+      // Perfect fifth (3/2) - same as just intonation
+      expect(tunings['G4']).toBeDefined();
+      expect(tunings['G4'].ratio).toBe('3/2');
+
+      // Major third in Pythagorean is 81/64 (different from just intonation's 5/4)
+      expect(tunings['E4']).toBeDefined();
+      expect(tunings['E4'].ratio).toBe('81/64');
+      expect(tunings['E4'].ratioNumerator).toBe(81);
+      expect(tunings['E4'].ratioDenominator).toBe(64);
+    });
+
+    it('should initialize quarter-comma meantone tuning', () => {
+      const tunings = initializeTunings(440, 'quarter');
+
+      // Check specific meantone intervals
+      expect(tunings['C4']).toBeDefined();
+      expect(tunings['C4'].cents).toBe(0);
+
+      // In quarter-comma meantone, the major third should be pure (closer to 386 cents than 400)
+      expect(tunings['E4']).toBeDefined();
+      expect(tunings['E4'].cents).toBeCloseTo(386.3, 1);
+
+      // And fifths are slightly narrow compared to pure 702 cents
+      expect(tunings['G4']).toBeDefined();
+      expect(tunings['G4'].cents).toBeCloseTo(696.6, 1); 
+    });
+
+    it('should initialize La Monte Young\'s Well-Tuned Piano', () => {
+      const tunings = initializeTunings(440, 'youngWellTuned');
+
+      // Check Young's specific 7-limit intervals
+      expect(tunings['C4']).toBeDefined();
+      expect(tunings['C4'].ratio).toBe('1/1');
+
+      // The tritone in Young's system is not 45/32 (like in standard JI)
+      expect(tunings['F#4']).toBeDefined();
+      expect(tunings['F#4'].ratio).toBe('189/128');
+
+      // Young uses 7/4 for the minor seventh
+      expect(tunings['A#4']).toBeDefined();
+      expect(tunings['A#4'].ratio).toBe('441/256');
+    });
+
+    it('should initialize 7-limit Centaur tuning', () => {
+      const tunings = initializeTunings(440, 'centaur');
+
+      // Check Centaur's specific 7-limit intervals
+      expect(tunings['C4']).toBeDefined();
+      expect(tunings['C4'].ratio).toBe('1/1');
+
+      // Centaur's C# uses 21/20 ratio
+      expect(tunings['C#4']).toBeDefined();
+      expect(tunings['C#4'].ratio).toBe('21/20');
+      expect(tunings['C#4'].ratioNumerator).toBe(21);
+      expect(tunings['C#4'].ratioDenominator).toBe(20);
+
+      // Centaur's A# uses 7/4
+      expect(tunings['A#4']).toBeDefined();
+      expect(tunings['A#4'].ratio).toBe('7/4');
+      expect(tunings['A#4'].ratioNumerator).toBe(7);
+      expect(tunings['A#4'].ratioDenominator).toBe(4);
+    });
+
+    it('should work with different reference frequencies', () => {
+      const tunings432 = initializeTunings(432); // A4 = 432Hz
+      
+      expect(tunings432['A4']).toBeDefined();
+      expect(tunings432['A4'].frequency).toBeCloseTo(432, 1);
+      
+      // C4 should be proportionally lower
+      expect(tunings432['C4']).toBeDefined();
+      expect(tunings432['C4'].frequency).toBeCloseTo(257.02, 1); // 261.63 * (432/440)
     });
   });
 });
