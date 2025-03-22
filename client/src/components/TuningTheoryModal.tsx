@@ -82,9 +82,9 @@ const tuningTheoryContent: Record<string, {
     title: "7-limit Centaur",
     description: "A modern just intonation tuning system utilizing harmonics up to the 7th.",
     theory: "The 7-limit Centaur tuning is based on extending just intonation to include ratios using the prime number 7, creating a richer harmonic palette. The system embraces the 'blue' notes created by the 7th harmonic, which fall between the notes of conventional Western scales.",
-    mathematics: "7-limit just intonation adds the prime number 7 to the more common 3- and 5-limit ratios. This creates intervals like 7:4 (a 'harmonic seventh' that's flatter than a minor seventh), 7:5 (a smaller tritone), and 7:6 (a smaller minor third). These ratios create consonances not found in conventional tuning systems.",
+    mathematics: "7-limit just intonation adds the prime number 7 to the more common 3- and 5-limit ratios. This creates unique intervals like 21:20 (a small minor second from C to C#), 7:4 (a 'harmonic seventh' that's flatter than a minor seventh), 7:5 (a smaller tritone), and 7:6 (a smaller minor third). These ratios create consonances not found in conventional tuning systems.",
     history: "7-limit tuning systems gained prominence in 20th century experimental music, particularly through the work of composers like Harry Partch, Ben Johnston, and others who sought to expand beyond the limitations of 12-tone equal temperament and explore the harmonic spaces defined by higher prime numbers.",
-    example: "The 7:4 ratio (used for G#) produces a 'harmonic seventh' that sounds between a minor and major seventh, creating a consonant bluesy sound rather than the dissonant minor seventh of equal temperament."
+    example: "The 21:20 ratio (used for C to C#) creates a very small minor second of about 85 cents, smaller than the equal-tempered 100 cents. The 7:4 ratio (used for G#) produces a 'harmonic seventh' that sounds between a minor and major seventh, creating a consonant bluesy sound rather than the dissonant minor seventh of equal temperament."
   }
 };
 

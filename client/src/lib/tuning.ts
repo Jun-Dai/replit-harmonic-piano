@@ -355,7 +355,7 @@ export function initializeTunings(
     // Based on 7-limit just intonation with harmonics of prime numbers up to 7
     const centaurRatios: Record<string, [number, number]> = {
       'C': [1, 1],      // Reference
-      'C#': [8, 7],     // 7-limit minor second
+      'C#': [21, 20],   // C to C# ratio in 7-limit Centaur tuning
       'D': [9, 8],      // 9/8 major second
       'D#': [7, 6],     // 7/6 minor third
       'E': [5, 4],      // 5/4 major third
