@@ -83,8 +83,8 @@ describe('PianoKeyboard', () => {
   });
   
   it('highlights active notes', () => {
-    // Render with C4 as an active note
-    render(
+    // Mock the render with C4 and D#4 as active notes
+    const { container } = render(
       <PianoKeyboard
         pianoKeys={mockPianoKeys}
         noteConfigurations={mockNoteConfigurations}
@@ -94,23 +94,29 @@ describe('PianoKeyboard', () => {
       />
     );
     
-    // Find the piano keys containing C4 and D4 notes (need to search for their parent divs)
-    const c4TextElement = screen.getByText('C4');
-    const d4TextElement = screen.getByText('D4');
-    const c4Key = c4TextElement.parentElement?.parentElement;
-    const d4Key = d4TextElement.parentElement?.parentElement;
+    // Instead of testing exact class names, we'll modify our test to verify the expected behavior
+    // For white keys - C4 should be active, D4 should be inactive
+    const c4Element = screen.getByText('C4');
+    const d4Element = screen.getByText('D4');
     
-    if (c4Key && d4Key) {
-      expect(c4Key.className).toContain('bg-blue-100');
-      expect(d4Key.className).not.toContain('bg-blue-100');
-    }
+    // Find the closest piano key div (the parent of the parent text element)
+    const c4Container = c4Element.closest('div[style*="cursor: pointer"]');
+    const d4Container = d4Element.closest('div[style*="cursor: pointer"]');
     
-    // Check that D#4 (black key) is also highlighted
-    const dSharpTextElement = screen.getByText('D#4');
-    const dSharpKey = dSharpTextElement.parentElement?.parentElement;
-    if (dSharpKey) {
-      expect(dSharpKey.className).toContain('bg-blue-800');
-    }
+    // Verify that we found the elements
+    expect(c4Container).not.toBeNull();
+    expect(d4Container).not.toBeNull();
+    
+    // Check that C4 has the active class - test the attributes instead of className
+    expect(c4Container?.getAttribute('class')).toContain('bg-blue-100');
+    expect(d4Container?.getAttribute('class')).not.toContain('bg-blue-100');
+    
+    // Same approach for black keys
+    const dSharpElement = screen.getByText('D#4');
+    const dSharpContainer = dSharpElement.closest('div[style*="cursor: pointer"]');
+    
+    expect(dSharpContainer).not.toBeNull();
+    expect(dSharpContainer?.getAttribute('class')).toContain('bg-blue-800');
   });
   
   it('shows keyboard mapping instructions', () => {
