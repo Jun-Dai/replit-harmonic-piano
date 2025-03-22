@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Save, FolderOpen } from "lucide-react";
 import { Note, TuningConfig } from "@shared/schema";
+import TuningTheoryModal from "./TuningTheoryModal";
 
 interface ConfigPanelProps {
   baseFrequency: number;
@@ -292,7 +293,10 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </div>
           
           <div className="mt-4 text-sm text-neutral-400">
-            <p>Current system: <span className="font-medium text-neutral-500">{currentTuningSystem}</span></p>
+            <div className="flex items-center justify-between">
+              <p>Current system: <span className="font-medium text-neutral-500">{currentTuningSystem}</span></p>
+              <TuningTheoryModal currentTuningSystem={currentTuningSystem} />
+            </div>
           </div>
         </div>
       </div>
