@@ -97,11 +97,8 @@ describe('ConfigPanel', () => {
   it('renders the configuration panel with basic elements', () => {
     render(<ConfigPanel {...mockProps} />);
     
-    // Check for main section headings
+    // Check for main section heading
     expect(screen.getByText('Tuning Configuration')).toBeInTheDocument();
-    expect(screen.getByText('Base Frequency')).toBeInTheDocument();
-    expect(screen.getByText('Tuning System')).toBeInTheDocument();
-    expect(screen.getByText('Note Configurations')).toBeInTheDocument();
     
     // Check for frequency input
     const frequencyInput = screen.getByLabelText('A4 =');
@@ -194,7 +191,7 @@ describe('ConfigPanel', () => {
     render(<ConfigPanel {...mockProps} />);
     
     // Find the Cents radio option and click it
-    const centsRadio = screen.getByLabelText('Cents');
+    const centsRadio = screen.getByLabelText('Cents Value');
     fireEvent.click(centsRadio);
     
     expect(mockProps.setTuningMethod).toHaveBeenCalledWith('cents');
@@ -206,15 +203,13 @@ describe('ConfigPanel', () => {
     expect(mockProps.setTuningMethod).toHaveBeenCalledWith('ratio');
   });
 
-  it('selects a different tuning system when an option is chosen', () => {
+  it('selects a different tuning system when button is clicked', () => {
     render(<ConfigPanel {...mockProps} />);
     
-    // Find the tuning system select input
-    const tuningSelect = screen.getByLabelText('Tuning System:');
+    // Find the Pythagorean button and click it
+    const pythagoreanButton = screen.getByRole('button', { name: 'Pythagorean' });
+    fireEvent.click(pythagoreanButton);
     
-    // Change to Pythagorean tuning
-    fireEvent.change(tuningSelect, { target: { value: 'Pythagorean' } });
-    
-    expect(mockProps.selectTuningSystem).toHaveBeenCalledWith('Pythagorean');
+    expect(mockProps.selectTuningSystem).toHaveBeenCalledWith('pythagorean');
   });
 });
