@@ -41,7 +41,8 @@ describe('InfoPanel', () => {
     
     // After click - details should be visible
     expect(screen.getByText('About Just Intonation and Cents')).toBeInTheDocument();
-    expect(screen.getByText(/Just Intonation uses whole number ratios/)).toBeInTheDocument();
+    expect(screen.getByText('Just Intonation')).toBeInTheDocument();
+    expect(screen.getByText('Cents')).toBeInTheDocument();
     
     // Click again to hide
     fireEvent.click(infoButton);
