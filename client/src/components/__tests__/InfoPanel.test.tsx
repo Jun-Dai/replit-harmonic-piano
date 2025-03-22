@@ -8,7 +8,10 @@ describe('InfoPanel', () => {
     
     // Check that the component renders with default values
     expect(screen.getByText('Currently Playing')).toBeInTheDocument();
-    expect(screen.getByText('-')).toBeInTheDocument(); // Note placeholder
+    
+    // Use getAllByText since there are multiple '-' placeholders
+    const dashPlaceholders = screen.getAllByText('-');
+    expect(dashPlaceholders.length).toBeGreaterThan(0);
   });
   
   it('should display currently playing note information', () => {

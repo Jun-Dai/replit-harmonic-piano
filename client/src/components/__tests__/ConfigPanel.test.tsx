@@ -160,9 +160,9 @@ describe('ConfigPanel', () => {
     const loadButton = screen.getByRole('button', { name: /load/i });
     fireEvent.click(loadButton);
     
-    // Find and click on the load button for the first saved config
-    const loadConfigs = screen.getAllByText('Load');
-    fireEvent.click(loadConfigs[0]); // Click the first "Load" button
+    // Find and click on the saved config button
+    const savedConfig = screen.getByText('Saved Tuning 1');
+    fireEvent.click(savedConfig);
     
     // Check that the loadTuningConfig function was called with the correct ID
     expect(mockProps.loadTuningConfig).toHaveBeenCalledWith(1);
