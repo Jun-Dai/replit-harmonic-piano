@@ -32,27 +32,36 @@ describe('TuningTheoryModal', () => {
     // Open the modal
     fireEvent.click(screen.getByRole('button', { name: /learn about just intonation/i }));
     
-    // Check that the theory tab is open by default
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Musical Theory');
+    // Verify that we're on the theory tab with correct content
+    const theoryTab = screen.getByRole('tab', { name: /theory/i });
+    expect(theoryTab).toHaveAttribute('aria-selected', 'true');
     
     // Click on the mathematics tab
-    fireEvent.click(screen.getByRole('tab', { name: /mathematics/i }));
+    const mathTab = screen.getByRole('tab', { name: /mathematics/i });
+    fireEvent.click(mathTab);
     
-    // Check that the mathematics content is now visible
-    // Using the tabpanel instead of exact text to avoid text splitting issues
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Mathematical Basis');
+    // Verify the mathematics tab is selected and shows the right content
+    expect(mathTab).toHaveAttribute('aria-selected', 'true');
+    expect(theoryTab).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByText(/just intonation ratios are expressed as simple fractions/i)).toBeInTheDocument();
     
     // Click on the history tab
-    fireEvent.click(screen.getByRole('tab', { name: /history/i }));
+    const historyTab = screen.getByRole('tab', { name: /history/i });
+    fireEvent.click(historyTab);
     
-    // Check that the history content is now visible
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Historical Context');
+    // Verify the history tab is selected
+    expect(historyTab).toHaveAttribute('aria-selected', 'true');
+    expect(mathTab).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByText(/just intonation is one of the oldest tuning systems/i)).toBeInTheDocument();
     
     // Click on the examples tab
-    fireEvent.click(screen.getByRole('tab', { name: /examples/i }));
+    const examplesTab = screen.getByRole('tab', { name: /examples/i });
+    fireEvent.click(examplesTab);
     
-    // Check that the examples content is now visible
-    expect(screen.getByRole('tabpanel')).toHaveTextContent('Practical Examples');
+    // Verify the examples tab is selected
+    expect(examplesTab).toHaveAttribute('aria-selected', 'true');
+    expect(historyTab).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByText(/a major chord.*in just intonation/i)).toBeInTheDocument();
   });
   
   it('handles unknown tuning systems by defaulting to Equal Temperament', () => {
