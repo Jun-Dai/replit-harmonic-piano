@@ -330,8 +330,8 @@ export function initializeTunings(
       'D': [9, 8],        // Major whole tone
       'D#': [147, 128],   // Sharp minor third (based on 7-limit)
       'E': [21, 16],      // 7-limit major third
-      'F': [4, 3],        // Perfect fourth
-      'F#': [1323, 1024], // Corrected Young tuning ratio
+      'F': [1323, 1024],  // Actual Young tuning - no 4/3 in his system
+      'F#': [189, 128],   // Young's tuning ratio
       'G': [3, 2],        // Perfect fifth
       'G#': [49, 32],     // 7-limit augmented fifth
       'A': [7, 4],        // 7-limit major sixth
