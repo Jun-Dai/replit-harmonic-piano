@@ -1,5 +1,9 @@
 import '@testing-library/jest-dom';
 import { expect, vi } from 'vitest';
+import * as matchers from '@testing-library/jest-dom/matchers';
+
+// Add custom jest-dom matchers
+expect.extend(matchers);
 
 // Mock the Web Audio API for tests
 class AudioContextMock {

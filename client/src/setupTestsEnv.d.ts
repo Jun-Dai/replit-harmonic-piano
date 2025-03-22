@@ -2,13 +2,11 @@
 /// <reference types="@testing-library/jest-dom" />
 
 import '@testing-library/jest-dom';
-import { expect } from 'vitest';
+import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers';
 
 declare global {
   namespace Vi {
-    interface Assertion extends jest.Matchers<any, any>, jest.Matchers<void, any> {
-      toBeInTheDocument(): void;
-      toHaveValue(value: string | string[] | number): void;
-    }
+    interface Assertion<T = any> extends TestingLibraryMatchers<T, void> {}
+    interface AsymmetricMatchersContaining extends TestingLibraryMatchers<any, void> {}
   }
 }

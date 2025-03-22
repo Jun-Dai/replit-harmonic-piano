@@ -94,9 +94,11 @@ describe('PianoKeyboard', () => {
       />
     );
     
-    // Find all white keys divs and check that the C4 one has the active class
-    const c4Key = screen.getByText('C4').closest('div');
-    const d4Key = screen.getByText('D4').closest('div');
+    // Find the piano keys containing C4 and D4 notes (need to search for their parent divs)
+    const c4TextElement = screen.getByText('C4');
+    const d4TextElement = screen.getByText('D4');
+    const c4Key = c4TextElement.parentElement?.parentElement;
+    const d4Key = d4TextElement.parentElement?.parentElement;
     
     if (c4Key && d4Key) {
       expect(c4Key.className).toContain('bg-blue-100');
@@ -104,7 +106,8 @@ describe('PianoKeyboard', () => {
     }
     
     // Check that D#4 (black key) is also highlighted
-    const dSharpKey = screen.getByText('D#4').closest('div');
+    const dSharpTextElement = screen.getByText('D#4');
+    const dSharpKey = dSharpTextElement.parentElement?.parentElement;
     if (dSharpKey) {
       expect(dSharpKey.className).toContain('bg-blue-800');
     }
