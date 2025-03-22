@@ -16,28 +16,31 @@ describe('ConfigPanel', () => {
     selectTuningSystem: vi.fn(),
     noteConfigurations: {
       'C4': { 
-        note: 'C4', 
+        name: 'C4', 
         baseName: 'C',
         ratioNumerator: 1, 
         ratioDenominator: 1, 
         cents: 0, 
-        frequency: 261.63 
+        frequency: 261.63,
+        ratio: '1/1'
       },
       'C#4': { 
-        note: 'C#4', 
+        name: 'C#4', 
         baseName: 'C#',
         ratioNumerator: 16, 
         ratioDenominator: 15, 
         cents: 100, 
-        frequency: 277.18 
+        frequency: 277.18,
+        ratio: '16/15'
       },
       'D4': { 
-        note: 'D4', 
+        name: 'D4', 
         baseName: 'D',
         ratioNumerator: 9, 
         ratioDenominator: 8, 
         cents: 200, 
-        frequency: 293.66 
+        frequency: 293.66,
+        ratio: '9/8'
       }
     } as Record<string, Note>,
     updateNoteConfig: vi.fn(),
@@ -46,8 +49,42 @@ describe('ConfigPanel', () => {
     configName: 'My Tuning',
     setConfigName: vi.fn(),
     tuningConfigs: [
-      { id: 1, name: 'Saved Tuning 1', config: {} },
-      { id: 2, name: 'Saved Tuning 2', config: {} }
+      { 
+        id: 1, 
+        name: 'Saved Tuning 1', 
+        baseFrequency: 440, 
+        decayLength: 2.0,
+        notes: {
+          'C4': { 
+            name: 'C4', 
+            baseName: 'C',
+            ratioNumerator: 1, 
+            ratioDenominator: 1, 
+            cents: 0, 
+            frequency: 261.63,
+            ratio: '1/1'
+          }
+        },
+        createdBy: null
+      },
+      { 
+        id: 2, 
+        name: 'Saved Tuning 2', 
+        baseFrequency: 432, 
+        decayLength: 3.0,
+        notes: {
+          'C4': { 
+            name: 'C4', 
+            baseName: 'C',
+            ratioNumerator: 1, 
+            ratioDenominator: 1, 
+            cents: 0, 
+            frequency: 256.87,
+            ratio: '1/1'
+          }
+        },
+        createdBy: null
+      }
     ] as TuningConfig[],
     loadTuningConfig: vi.fn(),
     isLoading: false

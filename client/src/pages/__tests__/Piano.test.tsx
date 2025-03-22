@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Piano from '../Piano';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -75,28 +75,31 @@ describe('Piano Component', () => {
     vi.spyOn(tuningLib, 'calculateFrequency');
     vi.spyOn(tuningLib, 'initializeTunings').mockReturnValue({
       'C4': { 
-        note: 'C4', 
+        name: 'C4', 
         baseName: 'C',
         ratioNumerator: 1, 
         ratioDenominator: 1, 
         cents: 0, 
-        frequency: 261.63 
+        frequency: 261.63,
+        ratio: '1/1'
       },
       'C#4': { 
-        note: 'C#4', 
+        name: 'C#4', 
         baseName: 'C#',
         ratioNumerator: 16, 
         ratioDenominator: 15, 
         cents: 100, 
-        frequency: 277.18 
+        frequency: 277.18,
+        ratio: '16/15'
       },
       'D4': { 
-        note: 'D4', 
+        name: 'D4', 
         baseName: 'D',
         ratioNumerator: 9, 
         ratioDenominator: 8, 
         cents: 200, 
-        frequency: 293.66 
+        frequency: 293.66,
+        ratio: '9/8'
       }
     });
   });
