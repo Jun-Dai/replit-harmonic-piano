@@ -276,11 +276,11 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
               Kirnberger III
             </Button>
             <Button 
-              variant={currentTuningSystem === "Young's Well-Tuned Piano" ? "default" : "outline"}
+              variant={currentTuningSystem === "Young's Well-Tuned Piano (C)" ? "default" : "outline"}
               onClick={() => selectTuningSystem("youngWellTuned")}
-              className={currentTuningSystem === "Young's Well-Tuned Piano" ? "bg-primary" : ""}
+              className={currentTuningSystem === "Young's Well-Tuned Piano (C)" ? "bg-primary" : ""}
             >
-              Young's Well-Tuned Piano
+              Young's Well-Tuned Piano (C)
             </Button>
             <Button 
               variant={currentTuningSystem === "7-limit Centaur" ? "default" : "outline"}

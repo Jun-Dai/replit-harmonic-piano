@@ -374,7 +374,7 @@ const Piano = () => {
       "quarter": "Quarter-comma Meantone",
       "werckmeister3": "Werckmeister III",
       "kirnberger3": "Kirnberger III",
-      "youngWellTuned": "Young's Well-Tuned Piano",
+      "youngWellTuned": "Young's Well-Tuned Piano (C)",
       "centaur": "7-limit Centaur"
     };
     

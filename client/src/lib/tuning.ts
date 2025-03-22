@@ -323,19 +323,20 @@ export function initializeTunings(
   } else if (tuningSystem === 'youngWellTuned') {
     // La Monte Young's Well-Tuned Piano
     // Based on unique 7-limit just intonation with specific intervals
+    // Note: Originally based on E-flat, but transposed to C as our reference
     const youngRatios: Record<string, [number, number]> = {
-      'C': [1, 1],      // Reference
-      'C#': [567, 512], // Approximating Young's tuning
-      'D': [9, 8],      // Major whole tone
-      'D#': [147, 128], // Sharp minor third (based on 7-limit)
-      'E': [21, 16],    // 7-limit major third
-      'F': [4, 3],      // Perfect fourth
-      'F#': [189, 128], // Augmented fourth (based on 7-limit JI)
-      'G': [3, 2],      // Perfect fifth
-      'G#': [49, 32],   // 7-limit augmented fifth
-      'A': [7, 4],      // 7-limit major sixth
-      'A#': [16, 9],    // Pythagorean minor seventh
-      'B': [63, 32]     // 7-limit major seventh
+      'C': [1, 1],        // Reference (transposed from E-flat)
+      'C#': [567, 512],   // Approximating Young's tuning 
+      'D': [9, 8],        // Major whole tone
+      'D#': [147, 128],   // Sharp minor third (based on 7-limit)
+      'E': [21, 16],      // 7-limit major third
+      'F': [4, 3],        // Perfect fourth
+      'F#': [1323, 1024], // Corrected Young tuning ratio
+      'G': [3, 2],        // Perfect fifth
+      'G#': [49, 32],     // 7-limit augmented fifth
+      'A': [7, 4],        // 7-limit major sixth
+      'A#': [441, 256],   // Corrected Young tuning ratio
+      'B': [63, 32]       // 7-limit major seventh
     };
     
     // Create ratio objects for each base note
