@@ -1,0 +1,3 @@
+# Please add a readme file that (a) tells me what this application does (as best you can intuit from the code and text in the app), (b) tells me how to set it up to run in a local sandbox on my machine, (c) tells me how I can run unit tests, and (d) tells me how to deploy this into a fresh AWS account.
+
+This README was generated to document the requested changes: Please add a readme file that (a) tells me what this application does (as best you can intuit from the code and text in the app), (b) tells me how to set it up to run in a local sandbox on my machine, (c) tells me how I can run unit tests, and (d) tells me how to deploy this into a fresh AWS account.
